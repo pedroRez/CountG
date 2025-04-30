@@ -1,21 +1,33 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-import shutil
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 import os
-from model.detector import count_cattle
+import shutil
+import random
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # pode restringir depois
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.post("/upload/")
-async def upload_image(file: UploadFile = File(...)):
-    filepath = os.path.join(UPLOAD_DIR, file.filename)
+async def upload(file: UploadFile = File(...)):
+    file_path = os.path.join(UPLOAD_DIR, file.filename)
 
-    with open(filepath, "wb") as buffer:
+    with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    count = count_cattle(filepath)  # simulação de contagem
+    # Simulação de contagem
+    simulated_count = random.randint(1, 15)
 
-    return JSONResponse(content={"filename": file.filename, "count": count})
+    return {
+        "filename": file.filename,
+        "count": simulated_count
+    }
