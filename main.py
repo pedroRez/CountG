@@ -1,33 +1,32 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-import os
+from fastapi import FastAPI, File, UploadFile
 import shutil
-import random
+import os
+from extract_frames import extract_frames
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # ou substitua por [“http://192.168.0.X:19000”] para mais segurança
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def prepare_dataset_folders():
+    paths = [
+        "dataset/images/train",
+        "dataset/images/val",
+        "dataset/labels/train",
+        "dataset/labels/val",
+        "videos"
+    ]
+    for path in paths:
+        os.makedirs(path, exist_ok=True)
 
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+@app.post("/upload-video/")
+async def upload_video(file: UploadFile = File(...)):
+    prepare_dataset_folders()
 
-@app.post("/upload/")
-async def upload(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
-
-    with open(file_path, "wb") as buffer:
+    # Salva o vídeo em 'videos/'
+    video_path = os.path.join("videos", file.filename)
+    with open(video_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Simulação de contagem
-    simulated_count = random.randint(1, 15)
+    # Extrai os frames do vídeo para dataset/images/train
+    output_folder = "dataset/images/train"
+    extract_frames(video_path, output_folder, step=30)
 
-    return {
-        "filename": file.filename,
-        "count": simulated_count
-    }
+    return {"message": "Vídeo recebido e frames extraídos com sucesso"}
