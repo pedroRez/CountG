@@ -1,10 +1,7 @@
-# Caminho para a raiz do conjunto de dados
 path: ./dataset
 
-# Caminhos relativos para imagens de treino e validação
 train: images/train
-val: images/train  # por enquanto, usamos o mesmo conjunto para treino e validação
+val: images/train  # ou images/val, se você tiver separado
 
-# Classes do dataset
 names:
-  0: gado
+  0: cattle  # ou 'vaca' ou o que foi usado no treinamento

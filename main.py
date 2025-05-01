@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 import shutil
 import os
 from extract_frames import extract_frames
+from contagem_video import run_video_prediction
 
 app = FastAPI()
 
@@ -30,3 +31,13 @@ async def upload_video(file: UploadFile = File(...)):
     extract_frames(video_path, output_folder, step=30)
 
     return {"message": "Vídeo recebido e frames extraídos com sucesso"}
+
+@app.post("/predict-video/")
+async def predict_video(file: UploadFile = File(...)):
+    video_path = os.path.join("videos", file.filename)
+    with open(video_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    # Executa a contagem
+    result = run_video_prediction(video_path)
+    return result
