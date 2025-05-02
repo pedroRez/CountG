@@ -1,3 +1,6 @@
+
+Usei python 3.10 Importante
+
 =========================
 ✅ BACKEND (FastAPI)
 =========================
