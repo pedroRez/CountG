@@ -2,11 +2,16 @@ import cv2
 from ultralytics import YOLO
 from fastapi.responses import JSONResponse
 import os
+import torch.serialization
+from ultralytics.nn.tasks import DetectionModel
+
+torch.serialization.add_safe_globals({'ultralytics.nn.tasks.DetectionModel': DetectionModel})
+
+
 
 # Caminho para o modelo treinado
 MODEL_PATH = "models/best.pt"
 model = YOLO(MODEL_PATH)
-
 # Define a linha virtual
 LINE_POSITION = 300  # Ajuste conforme necessário
 OFFSET = 10
