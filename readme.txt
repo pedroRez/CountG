@@ -7,9 +7,10 @@ yolo detect train data=data.yaml model=yolov8n.pt epochs=20
 =========================
 
 # 1. Acessar a pasta do projeto backend
-cd backend-count-gado
+cd CountG
 
 # 2. Criar ambiente virtual
+//python 3.10
 python -m venv venv
 
 # 3. Ativar ambiente virtual
