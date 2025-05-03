@@ -1,6 +1,7 @@
 
 Usei python 3.10 Importante
-
+comando de treinamento 
+yolo detect train data=data.yaml model=yolov8n.pt epochs=20
 =========================
 ✅ BACKEND (FastAPI)
 =========================
