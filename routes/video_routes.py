@@ -68,7 +68,6 @@ async def predict_video_endpoint(request: VideoRequest):
                 orientation=request.orientation,
                 target_classes=request.target_classes,
                 line_position_ratio=request.line_position_ratio,
-                create_annotated_video=False # << Defina como True aqui para gerar o vídeo processado
             )
             
             # Se 'resultado' não for None (ou seja, o processamento foi bem-sucedido e não foi cancelado)...
