@@ -21,24 +21,30 @@ processos_em_andamento = {}
 
 @router.post("/upload-video/")
 async def upload_video_endpoint(file: UploadFile = File(...)):
+    """
+    Recebe um vídeo do frontend, salva-o temporariamente no disco do servidor
+    com um nome único e retorna esse nome.
+    """
     file_extension = os.path.splitext(file.filename)[1]
     unique_filename = f"{uuid.uuid4()}{file_extension}"
     temp_local_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
     print(f"[UPLOAD] Recebendo '{file.filename}', salvando como '{unique_filename}'...")
+
     try:
         with open(temp_local_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         print(f"[UPLOAD] Vídeo salvo temporariamente em: {temp_local_path}")
     except Exception as e:
+        print(f"[UPLOAD ERRO] Falha ao salvar o arquivo temporariamente: {e}")
         raise HTTPException(status_code=500, detail=f"Falha ao salvar o arquivo no servidor: {str(e)}")
 
-    # O upload para a HostGator agora acontece dentro da thread de processamento
-    # Então este endpoint retorna imediatamente.
+    # O upload para a HostGator e a limpeza foram movidos para dentro de 'contar_gado_em_video'.
+    # Este endpoint agora é muito mais rápido e simples.
 
     return {
         "message": f"Arquivo '{file.filename}' recebido com sucesso.",
-        "nome_arquivo": unique_filename
+        "nome_arquivo": unique_filename # Retorna o nome único usado no servidor
     }
 
 @router.post("/predict-video/")
