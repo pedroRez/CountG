@@ -23,13 +23,35 @@ processos_em_andamento = {}
 
 logger = logging.getLogger(__name__)
 
+# Configurações de upload
+ALLOWED_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv"}
+MAX_FILE_SIZE_MB = 500
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
 @router.post("/upload-video/")
 async def upload_video_endpoint(file: UploadFile = File(...)):
     """
     Recebe um vídeo do frontend, salva-o temporariamente no disco do servidor
     com um nome único e retorna esse nome.
     """
-    file_extension = os.path.splitext(file.filename)[1]
+    file_extension = os.path.splitext(file.filename)[1].lower()
+
+    if file_extension not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Extensão '{file_extension}' não permitida. Use: {', '.join(sorted(ALLOWED_EXTENSIONS))}."
+        )
+
+    file.file.seek(0, os.SEEK_END)
+    file_size = file.file.tell()
+    file.file.seek(0)
+
+    if file_size > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Arquivo excede o tamanho máximo de {MAX_FILE_SIZE_MB}MB."
+        )
+
     unique_filename = f"{uuid.uuid4()}{file_extension}"
     temp_local_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
