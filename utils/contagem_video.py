@@ -4,9 +4,12 @@ from ultralytics import YOLO
 from collections import defaultdict
 import numpy as np
 from typing import Optional, Tuple, List, Dict, Any, Callable
+import logging
 
 # Importa as funções SFTP do seu handler
 from utils.sftp_handler import upload_file_sftp, delete_file_sftp
+
+logger = logging.getLogger(__name__)
 
 # --- Constantes para Clareza ---
 LINE_HORIZONTAL: str = "horizontal"
@@ -59,12 +62,14 @@ def get_line_and_direction_config(orientation_code: str, width: int, height: int
         line_type, effective_counting_direction = LINE_DIAGONAL_BCK, MOVE_TR_BL
         line_points, arrow_points = ((0,height),(width,0)), ((3*width//4, height//4), (width//4, 3*height//4))
     else: 
-        print(f"[AVISO get_line_config] Orientação '{orientation_code}' desconhecida. Usando padrão Leste (E).")
+        logger.warning(f"[AVISO get_line_config] Orientação '{orientation_code}' desconhecida. Usando padrão Leste (E).")
         line_type = LINE_VERTICAL; effective_counting_direction = MOVE_LR
         line_pos_value = int(width * line_ratio); line_points = ((line_pos_value, 0), (line_pos_value, height))
         arrow_points = ((line_pos_value - arrow_offset, height // 2), (line_pos_value + arrow_offset, height // 2))
     
-    print(f"[get_line_config] Para '{orientation_code}': tipo={line_type}, dir={effective_counting_direction}")
+    logger.debug(
+        f"[get_line_config] Para '{orientation_code}': tipo={line_type}, dir={effective_counting_direction}"
+    )
     return line_type, effective_counting_direction, line_points, line_pos_value, arrow_points
 
 # !!! ATENÇÃO: ESTA FUNÇÃO PARA DETECÇÃO DIAGONAL É UM ESBOÇO CONCEITUAL. !!!
@@ -95,8 +100,8 @@ def contar_gado_em_video(video_path: str,
     USE_SFTP = os.getenv("USE_SFTP", "false").lower() == "true"
     CREATE_ANNOTATED_VIDEO = os.getenv("CREATE_ANNOTATED_VIDEO", "false").lower() == "true"
     
-    print(f"[CONFIG] Modo SFTP Ativado: {USE_SFTP}")
-    print(f"[CONFIG] Gerar Vídeo Anotado: {CREATE_ANNOTATED_VIDEO}")
+    logger.info(f"[CONFIG] Modo SFTP Ativado: {USE_SFTP}")
+    logger.info(f"[CONFIG] Gerar Vídeo Anotado: {CREATE_ANNOTATED_VIDEO}")
 
     sftp_current_action = ""
     def sftp_progress_callback(bytes_transferred: int, total_bytes: int):
@@ -237,13 +242,13 @@ def contar_gado_em_video(video_path: str,
                 if progresso_manager: progresso_manager.erro(video_name, public_url)
         else:
             public_url = f"Vídeo processado salvo localmente e será deletado."
-            print(f"[INFO] Vídeo processado salvo em {local_output_path} e não será enviado.")
+            logger.info(f"[INFO] Vídeo processado salvo em {local_output_path} e não será enviado.")
 
     if USE_SFTP:
         if CREATE_ANNOTATED_VIDEO and os.path.exists(local_output_path): os.remove(local_output_path)
     if os.path.exists(local_video_path): os.remove(local_video_path)
     if USE_SFTP: delete_file_sftp(remote_video_original)
 
-    print(f"[INFO CONTAGEM] Contagem finalizada: {current_total_count} para {video_name}")
+    logger.info(f"[INFO CONTAGEM] Contagem finalizada: {current_total_count} para {video_name}")
     
     return {"video": video_name, "video_processado": public_url, "total_frames": original_frame_count, "total_count": current_total_count, "por_classe": dict(current_por_classe)}

@@ -1,3 +1,4 @@
+import logging
 from dotenv import load_dotenv
 import os
 
@@ -5,6 +6,13 @@ import os
 # Esta chamada deve ser uma das primeiras linhas do seu ponto de entrada,
 # antes de importar qualquer outro módulo do seu projeto que use essas variáveis.
 load_dotenv()
+
+# Configure logging for the application
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 # --- AGORA, IMPORTE O RESTO DA SUA APLICAÇÃO ---
 from fastapi import FastAPI
@@ -38,9 +46,10 @@ app.include_router(video_routes.router)
 def read_root():
     # Verifica se a variável de DB foi carregada, para debug
     db_url_loaded = bool(os.getenv("DATABASE_URL"))
+    logger.debug("Root endpoint accessed; DATABASE_URL loaded: %s", db_url_loaded)
     return {
         "status": "KYO DAY Backend está no ar!",
-        "database_url_loaded": db_url_loaded
+        "database_url_loaded": db_url_loaded,
     }
 
 # Lembre-se que o comando para rodar é:

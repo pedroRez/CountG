@@ -3,6 +3,7 @@ import re
 import shutil
 import threading
 import uuid
+import logging
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from typing import Optional, List
@@ -20,6 +21,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 progresso_manager = ProgressoManager()
 processos_em_andamento = {}
 
+logger = logging.getLogger(__name__)
+
 @router.post("/upload-video/")
 async def upload_video_endpoint(file: UploadFile = File(...)):
     """
@@ -30,14 +33,14 @@ async def upload_video_endpoint(file: UploadFile = File(...)):
     unique_filename = f"{uuid.uuid4()}{file_extension}"
     temp_local_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
-    print(f"[UPLOAD] Recebendo '{file.filename}', salvando como '{unique_filename}'...")
+    logger.info(f"[UPLOAD] Recebendo '{file.filename}', salvando como '{unique_filename}'...")
 
     try:
         with open(temp_local_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        print(f"[UPLOAD] Vídeo salvo temporariamente em: {temp_local_path}")
+        logger.info(f"[UPLOAD] Vídeo salvo temporariamente em: {temp_local_path}")
     except Exception as e:
-        print(f"[UPLOAD ERRO] Falha ao salvar o arquivo temporariamente: {e}")
+        logger.error(f"[UPLOAD ERRO] Falha ao salvar o arquivo temporariamente: {e}")
         raise HTTPException(status_code=500, detail=f"Falha ao salvar o arquivo no servidor: {str(e)}")
 
     # O upload para a HostGator e a limpeza foram movidos para dentro de 'contar_gado_em_video'.
@@ -70,7 +73,7 @@ async def predict_video_endpoint(request: VideoRequest):
         raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
 
     if progresso_manager.is_processing(video_name_on_server):
-        print(f"[PREDICT AVISO] Vídeo {video_name_on_server} já está sendo processado.")
+        logger.warning(f"[PREDICT AVISO] Vídeo {video_name_on_server} já está sendo processado.")
         return JSONResponse(
             status_code=409,
             content={"status": "em_processamento", "message": "Este vídeo já está sendo processado."}
@@ -81,7 +84,7 @@ async def predict_video_endpoint(request: VideoRequest):
     # --- FUNÇÃO DA THREAD CORRIGIDA ---
     def processamento_em_thread():
         try:
-            print(f"[THREAD] Iniciando a chamada para contar_gado_em_video para: {video_name_on_server}")
+            logger.info(f"[THREAD] Iniciando a chamada para contar_gado_em_video para: {video_name_on_server}")
 
             # Chama a função de contagem e armazena o resultado retornado
             resultado = contar_gado_em_video(
@@ -97,23 +100,21 @@ async def predict_video_endpoint(request: VideoRequest):
             # Se 'resultado' não for None (ou seja, o processamento foi bem-sucedido e não foi cancelado)...
             if resultado is not None:
                 # ...chama .finalizar() para atualizar o banco de dados com os resultados.
-                print(
+                logger.info(
                     f"[THREAD] contagem_video retornou um resultado. Finalizando o progresso no banco de dados..."
                 )
                 progresso_manager.finalizar(video_name_on_server, resultado)
             else:
                 # Se resultado for None, o erro ou cancelamento já foi tratado dentro de contar_gado_em_video
                 # e o status no banco de dados já foi atualizado para finalizado=True.
-                print(
+                logger.info(
                     f"[THREAD] contagem_video retornou None. O status já deve estar como erro ou cancelado."
                 )
 
         except Exception as e:
-            import traceback
-            print(
+            logger.exception(
                 f"[THREAD ERRO FATAL] Um erro inesperado ocorreu na thread para {video_name_on_server}: {e}"
             )
-            traceback.print_exc()
             progresso_manager.erro(video_name_on_server, f"Erro crítico na thread: {str(e)}")
         finally:
             # Remover referência à thread após o término para liberar memória
