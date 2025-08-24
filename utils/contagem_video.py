@@ -89,13 +89,15 @@ def is_crossing_diagonal_line(p_prev_x: int, p_prev_y: int, p_curr_x: int, p_cur
     return False
 
 def contar_gado_em_video(video_path: str,
-                         video_name: str, 
+                         video_name: str,
                          progresso_manager: Any,
-                         model_choice: str = "l", 
+                         model_choice: str = "l",
                          frame_skip: int = 1,
-                         orientation: str = "S", 
+                         orientation: str = "S",
                          target_classes: Optional[List[str]] = None,
-                         line_position_ratio: float = 0.5) -> Optional[Dict[str, Any]]:
+                         line_position_ratio: float = 0.5,
+                         status_check_interval: int = 30,
+                         cancel_callback: Optional[Callable[[], bool]] = None) -> Optional[Dict[str, Any]]:
     
     USE_SFTP = os.getenv("USE_SFTP", "false").lower() == "true"
     CREATE_ANNOTATED_VIDEO = os.getenv("CREATE_ANNOTATED_VIDEO", "false").lower() == "true"
@@ -171,8 +173,16 @@ def contar_gado_em_video(video_path: str,
             cap.release(); return None
     
     frame_atual = 0
+    cancelado_cache = False
+    last_status_check_frame = -status_check_interval
     while cap.isOpened():
-        if progresso_manager.status(video_name).get("cancelado"): break
+        if cancel_callback:
+            cancelado_cache = cancel_callback()
+        elif frame_atual - last_status_check_frame >= status_check_interval:
+            cancelado_cache = progresso_manager.status(video_name).get("cancelado")
+            last_status_check_frame = frame_atual
+        if cancelado_cache:
+            break
         ret, frame = cap.read()
         if not ret: break
 
@@ -224,10 +234,13 @@ def contar_gado_em_video(video_path: str,
     if cap.isOpened(): cap.release()
     if out and out.isOpened(): out.release()
 
-    if progresso_manager and progresso_manager.status(video_name).get("cancelado"): 
+    cancelado_final = cancelado_cache
+    if progresso_manager and not cancelado_final:
+        cancelado_final = progresso_manager.status(video_name).get("cancelado")
+    if cancelado_final:
         if os.path.exists(local_video_path): os.remove(local_video_path)
         if CREATE_ANNOTATED_VIDEO and os.path.exists(local_output_path): os.remove(local_output_path)
-        return None 
+        return None
 
     public_url = "Vídeo processado não foi gerado (opção desabilitada)."
     if CREATE_ANNOTATED_VIDEO:
