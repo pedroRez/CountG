@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import threading
 import uuid
@@ -50,7 +51,24 @@ async def upload_video_endpoint(file: UploadFile = File(...)):
 @router.post("/predict-video/")
 async def predict_video_endpoint(request: VideoRequest):
     video_name_on_server = request.nome_arquivo
-    
+
+    # Validação do nome do arquivo para evitar path traversal e caracteres inválidos
+    if (
+        ".." in video_name_on_server
+        or "/" in video_name_on_server
+        or "\\" in video_name_on_server
+    ):
+        raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
+
+    if not re.fullmatch(r"[\w.-]+", video_name_on_server):
+        raise HTTPException(status_code=400, detail="Nome de arquivo contém caracteres inválidos.")
+
+    expected_path = os.path.join(UPLOAD_FOLDER, video_name_on_server)
+    abs_path = os.path.abspath(expected_path)
+    upload_folder_abs = os.path.abspath(UPLOAD_FOLDER)
+    if not abs_path.startswith(upload_folder_abs + os.sep):
+        raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
+
     if progresso_manager.is_processing(video_name_on_server):
         print(f"[PREDICT AVISO] Vídeo {video_name_on_server} já está sendo processado.")
         return JSONResponse(
