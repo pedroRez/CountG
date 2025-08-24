@@ -5,6 +5,9 @@ from ultralytics import YOLO
 from collections import defaultdict
 import numpy as np
 from typing import Optional, Tuple, List, Dict, Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 # --- Funções auxiliares (copiadas do seu projeto) ---
 LINE_HORIZONTAL, LINE_VERTICAL = "horizontal", "vertical"
@@ -19,19 +22,19 @@ def get_line_and_direction_config(orientation_code: str, width: int, height: int
         return LINE_VERTICAL, MOVE_LR if orientation_code == 'E' else MOVE_RL, ((line_pos_value, 0), (line_pos_value, height)), line_pos_value
 
 def contar_gado_colab(video_path: str, model_path: str, orientation: str):
-    print(f"Iniciando processamento para o vídeo: {video_path}")
-    print(f"Usando modelo: {model_path}")
+    logger.info(f"Iniciando processamento para o vídeo: {video_path}")
+    logger.info(f"Usando modelo: {model_path}")
 
     try:
         model = YOLO(model_path)
-        print("Modelo YOLO carregado com sucesso.")
+        logger.info("Modelo YOLO carregado com sucesso.")
     except Exception as e:
-        print(f"ERRO: Falha ao carregar o modelo: {e}")
+        logger.error(f"ERRO: Falha ao carregar o modelo: {e}")
         return
 
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        print(f"ERRO: Não foi possível abrir o vídeo em {video_path}")
+        logger.error(f"ERRO: Não foi possível abrir o vídeo em {video_path}")
         return
 
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -91,13 +94,13 @@ def contar_gado_colab(video_path: str, model_path: str, orientation: str):
 
         frame_idx += 1
         if frame_idx % 30 == 0:
-          print(f"Processando frame {frame_idx}...")
+            logger.debug(f"Processando frame {frame_idx}...")
 
     cap.release()
     out.release()
-    print("-" * 20)
-    print(f"Processamento concluído! Contagem final: {total_count}")
-    print(f"Vídeo processado salvo como: {output_filename}")
+    logger.info("-" * 20)
+    logger.info(f"Processamento concluído! Contagem final: {total_count}")
+    logger.info(f"Vídeo processado salvo como: {output_filename}")
 
 
 # --- EXECUÇÃO DO TESTE ---

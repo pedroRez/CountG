@@ -1,5 +1,8 @@
 import os
 import glob
+import logging
+
+logger = logging.getLogger(__name__)
 
 def remap_class_ids(input_labels_dir, output_labels_dir, class_mapping, new_class_id_gado):
     """
@@ -16,7 +19,7 @@ def remap_class_ids(input_labels_dir, output_labels_dir, class_mapping, new_clas
     """
     if not os.path.exists(output_labels_dir):
         os.makedirs(output_labels_dir)
-        print(f"Diretório de saída criado: {output_labels_dir}")
+        logger.info(f"Diretório de saída criado: {output_labels_dir}")
 
     # Lista de IDs de classe COCO que devem ser convertidos para new_class_id_gado
     # Se class_mapping já contém o mapeamento direto, esta lista pode não ser necessária,
@@ -60,7 +63,7 @@ def remap_class_ids(input_labels_dir, output_labels_dir, class_mapping, new_clas
                         pass # Descarta detecções de classes não mapeadas
 
                 except ValueError:
-                    print(f"Aviso: Linha mal formatada em {label_file_path}: {line.strip()}")
+                    logger.warning(f"Aviso: Linha mal formatada em {label_file_path}: {line.strip()}")
                     modified_lines.append(line.strip()) # Mantém linha mal formatada
         
         if modified_lines: # Salva o arquivo apenas se houver linhas (após descarte ou com modificações)
@@ -73,10 +76,12 @@ def remap_class_ids(input_labels_dir, output_labels_dir, class_mapping, new_clas
             pass
         num_files_processed += 1
 
-    print(f"\nProcessamento concluído.")
-    print(f"Total de arquivos de anotação verificados: {num_files_processed}")
-    print(f"Total de detecções individuais remapeadas para ID '{new_class_id_gado}': {num_detections_remapped}")
-    print(f"Arquivos modificados salvos em: {output_labels_dir}")
+    logger.info("Processamento concluído.")
+    logger.info(f"Total de arquivos de anotação verificados: {num_files_processed}")
+    logger.info(
+        f"Total de detecções individuais remapeadas para ID '{new_class_id_gado}': {num_detections_remapped}"
+    )
+    logger.info(f"Arquivos modificados salvos em: {output_labels_dir}")
 
 if __name__ == '__main__':
     # --- Configuração ---
@@ -106,12 +111,20 @@ if __name__ == '__main__':
 
     # Validação básica dos caminhos
     if not os.path.isdir(INPUT_LABELS_DIRECTORY) or INPUT_LABELS_DIRECTORY == "caminho/para/runs/detect/expN/labels/":
-        print(f"ERRO: O diretório de entrada '{INPUT_LABELS_DIRECTORY}' não existe ou não foi alterado. Por favor, configure corretamente.")
+        logger.error(
+            f"ERRO: O diretório de entrada '{INPUT_LABELS_DIRECTORY}' não existe ou não foi alterado. Por favor, configure corretamente."
+        )
     elif OUTPUT_LABELS_DIRECTORY == "caminho/para/seu_dataset_corrigido/labels/":
-        print(f"AVISO: O diretório de saída '{OUTPUT_LABELS_DIRECTORY}' parece não ter sido alterado do exemplo. Verifique se está correto.")
+        logger.warning(
+            f"AVISO: O diretório de saída '{OUTPUT_LABELS_DIRECTORY}' parece não ter sido alterado do exemplo. Verifique se está correto."
+        )
         remap_class_ids(INPUT_LABELS_DIRECTORY, OUTPUT_LABELS_DIRECTORY, COCO_CLASS_MAPPING_TO_GADO, NEW_GADO_CLASS_ID)
     else:
         remap_class_ids(INPUT_LABELS_DIRECTORY, OUTPUT_LABELS_DIRECTORY, COCO_CLASS_MAPPING_TO_GADO, NEW_GADO_CLASS_ID)
 
-    print("\nLembre-se de copiar as IMAGENS correspondentes para o seu diretório de dataset final e criar o arquivo data.yaml!")
-    print(f"Seu data.yaml deve ter nc: 1 e names: ['gado'] (ou o nome que você escolheu para a classe ID {NEW_GADO_CLASS_ID}).")
+    logger.info(
+        "Lembre-se de copiar as IMAGENS correspondentes para o seu diretório de dataset final e criar o arquivo data.yaml!"
+    )
+    logger.info(
+        f"Seu data.yaml deve ter nc: 1 e names: ['gado'] (ou o nome que você escolheu para a classe ID {NEW_GADO_CLASS_ID})."
+    )

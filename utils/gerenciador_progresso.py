@@ -2,11 +2,14 @@ import os
 import psycopg2
 import psycopg2.pool
 import time
-import json # Para lidar com a coluna JSONB do resultado
+import json  # Para lidar com a coluna JSONB do resultado
 from typing import Optional, Dict, Any
+import logging
 
 # Pega a URL do banco de dados das variáveis de ambiente carregadas pelo load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+logger = logging.getLogger(__name__)
 
 # --- Pool de Conexões com o Banco de Dados ---
 pool = None
@@ -14,15 +17,15 @@ try:
     if not DATABASE_URL:
         raise ValueError("A variável de ambiente DATABASE_URL não foi definida.")
     pool = psycopg2.pool.SimpleConnectionPool(1, 5, dsn=DATABASE_URL)
-    print("[DB] Pool de conexões com PostgreSQL criado com sucesso.")
+    logger.info("[DB] Pool de conexões com PostgreSQL criado com sucesso.")
 except Exception as e:
-    print(f"[DB ERRO] Falha CRÍTICA ao criar o pool de conexões com PostgreSQL: {e}")
-    print("Verifique se o PostgreSQL está rodando e se a DATABASE_URL no seu arquivo .env está correta.")
+    logger.error(f"[DB ERRO] Falha CRÍTICA ao criar o pool de conexões com PostgreSQL: {e}")
+    logger.error("Verifique se o PostgreSQL está rodando e se a DATABASE_URL no seu arquivo .env está correta.")
 
 def create_progress_table_if_not_exists():
     """Garante que a tabela de progresso exista no banco de dados."""
-    if not pool: 
-        print("[DB AVISO] Pool de conexões não disponível. Tabela não pôde ser verificada/criada.")
+    if not pool:
+        logger.warning("[DB AVISO] Pool de conexões não disponível. Tabela não pôde ser verificada/criada.")
         return
     conn = None
     try:
@@ -43,9 +46,9 @@ def create_progress_table_if_not_exists():
                 );
             """)
             conn.commit()
-            print("[DB] Tabela 'video_progress' verificada/criada com sucesso.")
+            logger.info("[DB] Tabela 'video_progress' verificada/criada com sucesso.")
     except Exception as e:
-        print(f"[DB ERRO] Falha ao criar/verificar a tabela 'video_progress': {e}")
+        logger.error(f"[DB ERRO] Falha ao criar/verificar a tabela 'video_progress': {e}")
     finally:
         if conn:
             pool.putconn(conn)
@@ -58,8 +61,8 @@ class ProgressoManager:
 
     def _execute_query(self, query: str, params: tuple = (), fetch: Optional[str] = None):
         """Função auxiliar para executar queries no banco de dados usando o pool."""
-        if not pool: 
-            print("[DB ERRO] Tentativa de executar query sem um pool de conexões válido.")
+        if not pool:
+            logger.error("[DB ERRO] Tentativa de executar query sem um pool de conexões válido.")
             return None
         conn = None
         try:
@@ -72,7 +75,7 @@ class ProgressoManager:
                     return cur.fetchall()
                 conn.commit()
         except Exception as e:
-            print(f"[DB ERRO] Falha na query '{query[:60].strip()}...': {e}")
+            logger.error(f"[DB ERRO] Falha na query '{query[:60].strip()}...': {e}")
             if conn:
                 try: conn.rollback()
                 except psycopg2.InterfaceError: conn = None # Conexão provavelmente já fechada/inválida
@@ -94,7 +97,7 @@ class ProgressoManager:
         """
         params = (video_name, time.time(), "Na fila...", False, False)
         self._execute_query(query, params)
-        print(f"[DB Progresso] Progresso iniciado/resetado para: {video_name}")
+        logger.info(f"[DB Progresso] Progresso iniciado/resetado para: {video_name}")
 
     def is_processing(self, video_name: str) -> bool:
         """Verifica no banco se um vídeo está atualmente em processamento."""
@@ -142,7 +145,7 @@ class ProgressoManager:
         resultado_json = json.dumps(resultado)
         params = (resultado_json, frame_final, video_name)
         self._execute_query(query, params)
-        print(f"[DB Progresso] Finalizado com sucesso para: {video_name}")
+        logger.info(f"[DB Progresso] Finalizado com sucesso para: {video_name}")
 
     def erro(self, video_name: str, mensagem: str):
         """Marca o processamento como finalizado com erro no banco de dados."""
@@ -150,7 +153,7 @@ class ProgressoManager:
         if not self.status(video_name).get("erro"): self.iniciar(video_name) # Garante que a linha exista antes de atualizar
         params = (mensagem, video_name)
         self._execute_query(query, params)
-        print(f"[DB Progresso] Erro registrado para: {video_name}")
+        logger.error(f"[DB Progresso] Erro registrado para: {video_name}")
 
     def status(self, video_name: str) -> Dict[str, Any]:
         """Retorna o status atual de um vídeo do banco de dados."""
@@ -167,6 +170,6 @@ class ProgressoManager:
         if status and not status.get("finalizado"):
             query = "UPDATE video_progress SET cancelado = TRUE, finalizado = TRUE, erro = 'Cancelado pelo usuário.', tempo_restante = 'Cancelado', last_updated = NOW() WHERE video_name = %s;"
             self._execute_query(query, (video_name,))
-            print(f"[DB Progresso] Cancelamento registrado para: {video_name}")
+            logger.info(f"[DB Progresso] Cancelamento registrado para: {video_name}")
             return True
         return False
