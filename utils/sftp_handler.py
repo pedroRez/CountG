@@ -1,8 +1,9 @@
-import os
-import paramiko
-from stat import S_ISDIR
-from typing import Optional, Tuple, Callable
 import logging
+import os
+from stat import S_ISDIR
+from typing import Callable, Optional, Tuple
+
+import paramiko
 
 logger = logging.getLogger(__name__)
 
@@ -13,10 +14,13 @@ HG_USER = os.getenv("HG_USER")
 HG_PASS = os.getenv("HG_PASS")
 HG_PORT = int(os.getenv("HG_PORT", 22))
 
+
 def sftp_connect() -> Optional[Tuple[paramiko.SFTPClient, paramiko.Transport]]:
     """Cria e retorna um cliente SFTP conectado."""
     if not all([HG_HOST, HG_USER, HG_PASS]):
-        logger.error("[SFTP ERRO] Variáveis de ambiente (HG_HOST, HG_USER, HG_PASS) não estão configuradas.")
+        logger.error(
+            "[SFTP ERRO] Variáveis de ambiente (HG_HOST, HG_USER, HG_PASS) não estão configuradas."
+        )
         return None, None
     try:
         transport = paramiko.Transport((HG_HOST, HG_PORT))
@@ -28,26 +32,28 @@ def sftp_connect() -> Optional[Tuple[paramiko.SFTPClient, paramiko.Transport]]:
         logger.error(f"[SFTP ERRO] Falha ao conectar: {e}")
         return None, None
 
+
 def _ensure_remote_dir_exists(sftp: paramiko.SFTPClient, remote_path: str):
     """
     Função auxiliar interna para garantir que um diretório remoto exista,
     criando-o recursivamente se necessário.
     """
     remote_dir = os.path.dirname(remote_path.replace("\\", "/"))
-    if not remote_dir or remote_dir == '.':
-        return # Não precisa criar diretório se o caminho for na raiz
-        
+    if not remote_dir or remote_dir == ".":
+        return  # Não precisa criar diretório se o caminho for na raiz
+
     # Divide o caminho em partes para criar cada nível do diretório
-    dirs = remote_dir.split('/')
-    current_dir = ''
+    dirs = remote_dir.split("/")
+    current_dir = ""
     for d in dirs:
-        if not d: continue # Ignora strings vazias (ex: de um caminho começando com /)
+        if not d:
+            continue  # Ignora strings vazias (ex: de um caminho começando com /)
         # Para caminhos relativos como 'public_html/...', current_dir começa sem a barra
         if current_dir:
-            current_dir += '/' + d
+            current_dir += "/" + d
         else:
             current_dir = d
-        
+
         try:
             # Verifica se o diretório/arquivo existe
             sftp.stat(current_dir)
@@ -56,30 +62,45 @@ def _ensure_remote_dir_exists(sftp: paramiko.SFTPClient, remote_path: str):
             logger.info(f"[SFTP] Criando diretório remoto: {current_dir}")
             sftp.mkdir(current_dir)
 
-def upload_file_sftp(local_path: str, remote_path: str, progress_callback: Optional[Callable[[int, int], None]] = None) -> bool:
+
+def upload_file_sftp(
+    local_path: str,
+    remote_path: str,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+) -> bool:
     """Faz upload de um arquivo local para um caminho remoto via SFTP, com callback de progresso."""
     sftp, transport = sftp_connect()
-    if not sftp: return False
-    
+    if not sftp:
+        return False
+
     try:
         _ensure_remote_dir_exists(sftp, remote_path)
-        
+
         logger.info(f"[SFTP] Fazendo upload de '{local_path}' para '{remote_path}'...")
         # Passa a função de callback para o método .put() do paramiko
         sftp.put(local_path, remote_path.replace("\\", "/"), callback=progress_callback)
         logger.info(f"[SFTP] Upload de '{os.path.basename(local_path)}' concluído.")
         return True
     except Exception as e:
-        logger.error(f"[SFTP ERRO] Falha no upload: {e}"); return False
+        logger.error(f"[SFTP ERRO] Falha no upload: {e}")
+        return False
     finally:
-        if sftp: sftp.close()
-        if transport: transport.close()
+        if sftp:
+            sftp.close()
+        if transport:
+            transport.close()
 
-def download_file_sftp(remote_path: str, local_path: str, progress_callback: Optional[Callable[[int, int], None]] = None) -> bool:
+
+def download_file_sftp(
+    remote_path: str,
+    local_path: str,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+) -> bool:
     """Baixa um arquivo de um caminho remoto para um local via SFTP, com callback de progresso."""
     sftp, transport = sftp_connect()
-    if not sftp: return False
-    
+    if not sftp:
+        return False
+
     try:
         logger.info(f"[SFTP] Baixando de '{remote_path}' para '{local_path}'...")
         # Passa a função de callback para o método .get() do paramiko
@@ -87,26 +108,36 @@ def download_file_sftp(remote_path: str, local_path: str, progress_callback: Opt
         logger.info(f"[SFTP] Download de '{os.path.basename(remote_path)}' concluído.")
         return True
     except Exception as e:
-        logger.error(f"[SFTP ERRO] Falha no download: {e}"); return False
+        logger.error(f"[SFTP ERRO] Falha no download: {e}")
+        return False
     finally:
-        if sftp: sftp.close()
-        if transport: transport.close()
+        if sftp:
+            sftp.close()
+        if transport:
+            transport.close()
+
 
 def delete_file_sftp(remote_path: str) -> bool:
     """Deleta um arquivo em um caminho remoto via SFTP."""
     sftp, transport = sftp_connect()
-    if not sftp: return False
-    
+    if not sftp:
+        return False
+
     try:
         logger.info(f"[SFTP] Deletando arquivo remoto: '{remote_path}'...")
         sftp.remove(remote_path.replace("\\", "/"))
         logger.info(f"[SFTP] Arquivo '{os.path.basename(remote_path)}' deletado.")
         return True
     except FileNotFoundError:
-        logger.warning(f"[SFTP AVISO] Tentativa de deletar arquivo que não existe: {remote_path}")
-        return True # Considera sucesso se o arquivo já não existe
+        logger.warning(
+            f"[SFTP AVISO] Tentativa de deletar arquivo que não existe: {remote_path}"
+        )
+        return True  # Considera sucesso se o arquivo já não existe
     except Exception as e:
-        logger.error(f"[SFTP ERRO] Falha ao deletar '{remote_path}': {e}"); return False
+        logger.error(f"[SFTP ERRO] Falha ao deletar '{remote_path}': {e}")
+        return False
     finally:
-        if sftp: sftp.close()
-        if transport: transport.close()
+        if sftp:
+            sftp.close()
+        if transport:
+            transport.close()

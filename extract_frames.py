@@ -1,8 +1,10 @@
-import cv2
-import os
 import logging
+import os
+
+import cv2
 
 logger = logging.getLogger(__name__)
+
 
 def extract_frames(video_path, output_folder, step=30):
     """
