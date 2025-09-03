@@ -31,7 +31,10 @@ CountG é um backend em **FastAPI** para contagem e rastreamento de objetos em v
    ```
 3. Instale as dependências:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements.txt  # dependências principais
+   pip install -r requirements-dev.txt  # dependências de desenvolvimento
+   # ou use Poetry
+   poetry install
    ```
 
 ### Execução
@@ -101,7 +104,10 @@ CountG is a **FastAPI** backend for object counting and tracking in video using 
    ```
 3. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements.txt  # main dependencies
+   pip install -r requirements-dev.txt  # development extras
+   # or use Poetry
+   poetry install
    ```
 
 ### Running
