@@ -71,6 +71,9 @@ OMP_NUM_THREADS=12
 - [YOLOv8](https://docs.ultralytics.com/)
 - [Shields.io](https://shields.io/)
 
+### Licença
+Este projeto está licenciado sob os termos da [MIT License](LICENSE).
+
 ---
 
 ## English
@@ -137,4 +140,7 @@ OMP_NUM_THREADS=12
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [YOLOv8](https://docs.ultralytics.com/)
 - [Shields.io](https://shields.io/)
+
+### License
+This project is licensed under the terms of the [MIT License](LICENSE).
 
