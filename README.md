@@ -149,4 +149,3 @@ OMP_NUM_THREADS=12
 
 ### License
 This project is licensed under the terms of the [MIT License](LICENSE).
-

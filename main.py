@@ -1,56 +1,55 @@
 import logging
-from dotenv import load_dotenv
 import os
 
-# --- PASSO CRÍTICO: CARREGAR AS VARIÁVEIS DE AMBIENTE PRIMEIRO! ---
-# Esta chamada deve ser uma das primeiras linhas do seu ponto de entrada,
-# antes de importar qualquer outro módulo do seu projeto que use essas variáveis.
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from routes import video_routes
+
+# --- CRITICAL STEP: LOAD ENVIRONMENT VARIABLES FIRST! ---
+# This call must be one of the first lines of your entry point before importing
+# any other module that uses these variables.
 load_dotenv()
 
-# Configure logging for the application
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-# --- AGORA, IMPORTE O RESTO DA SUA APLICAÇÃO ---
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from routes import video_routes # Este import agora acontecerá DEPOIS de load_dotenv()
-
-# Cria a instância do FastAPI
+# Create the FastAPI application instance
 app = FastAPI()
 
-# Configuração do CORS (importante para o frontend se comunicar com o backend)
-# Permite que seu app React Native (rodando em uma origem diferente)
-# se comunique com sua API.
+# CORS configuration (allows frontend to communicate with backend)
+# Allows a React Native app (running on a different origin) to talk to the API.
 origins = [
-    "*" # Para desenvolvimento, '*' é ok. Para produção, seja mais específico.
-    # Ex: "http://localhost:8081", "https://seu-pwa.com"
+    "*",  # For development '*' is fine. For production be more specific.
+    # E.g.: "http://localhost:8081", "https://your-pwa.com"
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Permite todos os métodos (GET, POST, etc.)
-    allow_headers=["*"], # Permite todos os cabeçalhos
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
 )
 
-# Inclui as rotas do seu arquivo video_routes.py
+# Include routes from video_routes.py
 app.include_router(video_routes.router)
 
-# Rota raiz para teste de saúde (opcional, mas recomendado)
+
+# Root endpoint for health check
 @app.get("/")
 def read_root():
-    # Verifica se a variável de DB foi carregada, para debug
     db_url_loaded = bool(os.getenv("DATABASE_URL"))
     logger.debug("Root endpoint accessed; DATABASE_URL loaded: %s", db_url_loaded)
     return {
-        "status": "KYO DAY Backend está no ar!",
+        "status": "KYO DAY Backend is running!",
         "database_url_loaded": db_url_loaded,
     }
 
-# Lembre-se que o comando para rodar é:
+
+# Remember to run:
 # uvicorn main:app --host 0.0.0.0 --port 8000 --reload

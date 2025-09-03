@@ -1,17 +1,18 @@
+import logging
 import os
 import re
 import shutil
 import threading
 import uuid
-import logging
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from fastapi.responses import JSONResponse
-from typing import Optional, List
+from typing import List, Optional
 
-from utils.gerenciador_progresso import ProgressoManager
-from utils.contagem_video import contar_gado_em_video
-from utils.sftp_handler import upload_file_sftp
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
+
 from schemas import VideoRequest
+from utils.contagem_video import contar_gado_em_video
+from utils.gerenciador_progresso import ProgressoManager
+from utils.sftp_handler import upload_file_sftp
 
 router = APIRouter()
 DATA_DIR = os.getenv("RENDER_DATA_DIR", "data")
@@ -28,6 +29,7 @@ ALLOWED_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv"}
 MAX_FILE_SIZE_MB = 500
 MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
+
 @router.post("/upload-video/")
 async def upload_video_endpoint(file: UploadFile = File(...)):
     """
@@ -39,7 +41,7 @@ async def upload_video_endpoint(file: UploadFile = File(...)):
     if file_extension not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=400,
-            detail=f"Extensão '{file_extension}' não permitida. Use: {', '.join(sorted(ALLOWED_EXTENSIONS))}."
+            detail=f"Extensão '{file_extension}' não permitida. Use: {', '.join(sorted(ALLOWED_EXTENSIONS))}.",
         )
 
     file.file.seek(0, os.SEEK_END)
@@ -49,13 +51,15 @@ async def upload_video_endpoint(file: UploadFile = File(...)):
     if file_size > MAX_FILE_SIZE_BYTES:
         raise HTTPException(
             status_code=400,
-            detail=f"Arquivo excede o tamanho máximo de {MAX_FILE_SIZE_MB}MB."
+            detail=f"Arquivo excede o tamanho máximo de {MAX_FILE_SIZE_MB}MB.",
         )
 
     unique_filename = f"{uuid.uuid4()}{file_extension}"
     temp_local_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
-    logger.info(f"[UPLOAD] Recebendo '{file.filename}', salvando como '{unique_filename}'...")
+    logger.info(
+        f"[UPLOAD] Recebendo '{file.filename}', salvando como '{unique_filename}'..."
+    )
 
     try:
         with open(temp_local_path, "wb") as buffer:
@@ -63,15 +67,18 @@ async def upload_video_endpoint(file: UploadFile = File(...)):
         logger.info(f"[UPLOAD] Vídeo salvo temporariamente em: {temp_local_path}")
     except Exception as e:
         logger.error(f"[UPLOAD ERRO] Falha ao salvar o arquivo temporariamente: {e}")
-        raise HTTPException(status_code=500, detail=f"Falha ao salvar o arquivo no servidor: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Falha ao salvar o arquivo no servidor: {str(e)}"
+        )
 
     # O upload para a HostGator e a limpeza foram movidos para dentro de 'contar_gado_em_video'.
     # Este endpoint agora é muito mais rápido e simples.
 
     return {
         "message": f"Arquivo '{file.filename}' recebido com sucesso.",
-        "nome_arquivo": unique_filename # Retorna o nome único usado no servidor
+        "nome_arquivo": unique_filename,  # Retorna o nome único usado no servidor
     }
+
 
 @router.post("/predict-video/")
 async def predict_video_endpoint(request: VideoRequest):
@@ -86,7 +93,9 @@ async def predict_video_endpoint(request: VideoRequest):
         raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
 
     if not re.fullmatch(r"[\w.-]+", video_name_on_server):
-        raise HTTPException(status_code=400, detail="Nome de arquivo contém caracteres inválidos.")
+        raise HTTPException(
+            status_code=400, detail="Nome de arquivo contém caracteres inválidos."
+        )
 
     expected_path = os.path.join(UPLOAD_FOLDER, video_name_on_server)
     abs_path = os.path.abspath(expected_path)
@@ -95,18 +104,25 @@ async def predict_video_endpoint(request: VideoRequest):
         raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
 
     if progresso_manager.is_processing(video_name_on_server):
-        logger.warning(f"[PREDICT AVISO] Vídeo {video_name_on_server} já está sendo processado.")
+        logger.warning(
+            f"[PREDICT AVISO] Vídeo {video_name_on_server} já está sendo processado."
+        )
         return JSONResponse(
             status_code=409,
-            content={"status": "em_processamento", "message": "Este vídeo já está sendo processado."}
+            content={
+                "status": "em_processamento",
+                "message": "Este vídeo já está sendo processado.",
+            },
         )
-    
+
     progresso_manager.iniciar(video_name_on_server)
 
     # --- FUNÇÃO DA THREAD CORRIGIDA ---
     def processamento_em_thread():
         try:
-            logger.info(f"[THREAD] Iniciando a chamada para contar_gado_em_video para: {video_name_on_server}")
+            logger.info(
+                f"[THREAD] Iniciando a chamada para contar_gado_em_video para: {video_name_on_server}"
+            )
 
             # Chama a função de contagem e armazena o resultado retornado
             resultado = contar_gado_em_video(
@@ -123,21 +139,23 @@ async def predict_video_endpoint(request: VideoRequest):
             if resultado is not None:
                 # ...chama .finalizar() para atualizar o banco de dados com os resultados.
                 logger.info(
-                    f"[THREAD] contagem_video retornou um resultado. Finalizando o progresso no banco de dados..."
+                    "[THREAD] contagem_video returned a result. Finalizing progress in the database..."
                 )
                 progresso_manager.finalizar(video_name_on_server, resultado)
             else:
                 # Se resultado for None, o erro ou cancelamento já foi tratado dentro de contar_gado_em_video
                 # e o status no banco de dados já foi atualizado para finalizado=True.
                 logger.info(
-                    f"[THREAD] contagem_video retornou None. O status já deve estar como erro ou cancelado."
+                    "[THREAD] contagem_video returned None. Status should already be error or canceled."
                 )
 
         except Exception as e:
             logger.exception(
                 f"[THREAD ERRO FATAL] Um erro inesperado ocorreu na thread para {video_name_on_server}: {e}"
             )
-            progresso_manager.erro(video_name_on_server, f"Erro crítico na thread: {str(e)}")
+            progresso_manager.erro(
+                video_name_on_server, f"Erro crítico na thread: {str(e)}"
+            )
         finally:
             # Remover referência à thread após o término para liberar memória
             processos_em_andamento.pop(video_name_on_server, None)
@@ -149,15 +167,19 @@ async def predict_video_endpoint(request: VideoRequest):
     return {
         "status": "iniciado",
         "message": f"Processamento para '{video_name_on_server}' iniciado.",
-        "video_name": video_name_on_server
+        "video_name": video_name_on_server,
     }
+
 
 @router.get("/progresso/{video_name}")
 async def progresso_endpoint(video_name: str):
     return progresso_manager.status(video_name)
 
+
 @router.get("/cancelar-processamento/{video_name}")
 async def cancelar_endpoint(video_name: str):
     if progresso_manager.cancelar(video_name):
         return {"message": f"Solicitação de cancelamento para {video_name} enviada."}
-    return {"message": f"Não foi possível cancelar ou o processo para {video_name} não está ativo."}
+    return {
+        "message": f"Não foi possível cancelar ou o processo para {video_name} não está ativo."
+    }
