@@ -42,6 +42,14 @@ CountG é um backend em **FastAPI** para contagem e rastreamento de objetos em v
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+### Testes
+Instale as dependências de desenvolvimento e rode os testes com **pytest**:
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests
+```
+
 ### Estrutura do Projeto
 ```text
 .
@@ -113,6 +121,14 @@ CountG is a **FastAPI** backend for object counting and tracking in video using 
 ### Running
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### Tests
+Install development dependencies and run the test suite with **pytest**:
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests
 ```
 
 ### Project Structure
