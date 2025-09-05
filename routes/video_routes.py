@@ -32,9 +32,31 @@ MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 @router.post("/upload-video/")
 async def upload_video_endpoint(file: UploadFile = File(...)):
-    """
-    Recebe um vídeo do frontend, salva-o temporariamente no disco do servidor
-    com um nome único e retorna esse nome.
+    """Português:
+        Recebe um vídeo do frontend, valida e salva temporariamente no servidor.
+
+        Parâmetros:
+            file (UploadFile): vídeo enviado pelo cliente.
+
+        Retorna:
+            dict: mensagem de sucesso e o nome único gerado para o vídeo.
+
+        Exemplo:
+            >>> curl -X POST -F "file=@meu_video.mp4" \\
+            ...     http://localhost:8000/upload-video/
+
+    English:
+        Receives a video from the frontend, validates it and stores it temporarily.
+
+        Parameters:
+            file (UploadFile): video provided by the client.
+
+        Returns:
+            dict: success message and the unique server-side filename.
+
+        Example:
+            >>> curl -X POST -F "file=@my_video.mp4" \\
+            ...     http://localhost:8000/upload-video/
     """
     file_extension = os.path.splitext(file.filename)[1].lower()
 
@@ -82,6 +104,34 @@ async def upload_video_endpoint(file: UploadFile = File(...)):
 
 @router.post("/predict-video/")
 async def predict_video_endpoint(request: VideoRequest):
+    """Português:
+        Inicia o processamento de um vídeo previamente enviado para contar o gado.
+
+        Parâmetros:
+            request (VideoRequest): dados do vídeo e opções de processamento.
+
+        Retorna:
+            dict: status indicando que o processamento foi iniciado.
+
+        Exemplo:
+            >>> curl -X POST -H "Content-Type: application/json" \\
+            ...     -d '{"nome_arquivo":"video.mp4"}' \\
+            ...     http://localhost:8000/predict-video/
+
+    English:
+        Starts cattle counting for a previously uploaded video.
+
+        Parameters:
+            request (VideoRequest): video data and processing options.
+
+        Returns:
+            dict: status informing that processing has begun.
+
+        Example:
+            >>> curl -X POST -H "Content-Type: application/json" \\
+            ...     -d '{"nome_arquivo":"video.mp4"}' \\
+            ...     http://localhost:8000/predict-video/
+    """
     video_name_on_server = request.nome_arquivo
 
     # Validação do nome do arquivo para evitar path traversal e caracteres inválidos
@@ -173,11 +223,59 @@ async def predict_video_endpoint(request: VideoRequest):
 
 @router.get("/progresso/{video_name}")
 async def progresso_endpoint(video_name: str):
+    """Português:
+        Consulta o progresso do processamento de um vídeo.
+
+        Parâmetros:
+            video_name (str): nome do arquivo do vídeo no servidor.
+
+        Retorna:
+            dict: dados de status e porcentagem de conclusão.
+
+        Exemplo:
+            >>> curl http://localhost:8000/progresso/video.mp4
+
+    English:
+        Retrieves the processing progress for a video.
+
+        Parameters:
+            video_name (str): name of the video file on the server.
+
+        Returns:
+            dict: status data including completion percentage.
+
+        Example:
+            >>> curl http://localhost:8000/progresso/video.mp4
+    """
     return progresso_manager.status(video_name)
 
 
 @router.get("/cancelar-processamento/{video_name}")
 async def cancelar_endpoint(video_name: str):
+    """Português:
+        Solicita o cancelamento do processamento de um vídeo.
+
+        Parâmetros:
+            video_name (str): nome do arquivo do vídeo no servidor.
+
+        Retorna:
+            dict: mensagem indicando se o cancelamento foi enviado.
+
+        Exemplo:
+            >>> curl http://localhost:8000/cancelar-processamento/video.mp4
+
+    English:
+        Requests cancellation of video processing.
+
+        Parameters:
+            video_name (str): name of the video file on the server.
+
+        Returns:
+            dict: message stating whether cancellation was issued.
+
+        Example:
+            >>> curl http://localhost:8000/cancelar-processamento/video.mp4
+    """
     if progresso_manager.cancelar(video_name):
         return {"message": f"Solicitação de cancelamento para {video_name} enviada."}
     return {
