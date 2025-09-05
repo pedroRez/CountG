@@ -43,6 +43,26 @@ app.include_router(video_routes.router)
 # Root endpoint for health check
 @app.get("/")
 def read_root():
+    """Health check endpoint / Endpoint de verificação de saúde.
+
+    English:
+        Provides a quick indication that the backend is running and reports
+        whether the ``DATABASE_URL`` environment variable has been loaded.
+        ``database_url_loaded`` is ``True`` when ``DATABASE_URL`` is set,
+        otherwise ``False``.
+
+    Português:
+        Fornece uma indicação rápida de que o backend está ativo e informa
+        se a variável de ambiente ``DATABASE_URL`` foi carregada.
+        ``database_url_loaded`` é ``True`` quando ``DATABASE_URL`` está definida,
+        caso contrário ``False``.
+
+    Example/Exemplo:
+        {
+            "status": "KYO DAY Backend is running!",
+            "database_url_loaded": true
+        }
+    """
     db_url_loaded = bool(os.getenv("DATABASE_URL"))
     logger.debug("Root endpoint accessed; DATABASE_URL loaded: %s", db_url_loaded)
     return {
