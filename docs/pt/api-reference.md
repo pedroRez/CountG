@@ -2,6 +2,10 @@
 
 Todos os endpoints retornam JSON.
 
+Você pode baixar o esquema OpenAPI completo em formato JSON para usar em
+ferramentas como Swagger ou Postman. [Baixe o esquema](../openapi.json) ou
+utilize o link no seu explorador de APIs preferido.
+
 ## `GET /`
 **Resposta**
 ```json
