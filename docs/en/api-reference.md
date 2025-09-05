@@ -2,6 +2,10 @@
 
 All endpoints return JSON.
 
+You can download the full OpenAPI schema as JSON for use with tools like Swagger
+or Postman. [Download the schema](../openapi.json) or paste the link into your
+favorite API explorer.
+
 ## `GET /`
 **Response**
 ```json
