@@ -104,6 +104,20 @@ curl http://localhost:8000/cancelar-processamento/video.mp4
 
 Para mais informações, consulte a [documentação completa](https://USER.github.io/CountG/).
 
+### Documentação
+Instale as dependências de documentação e rode localmente:
+
+```bash
+pip install mkdocs mkdocs-material mkdocs-static-i18n
+mkdocs serve
+```
+
+Para publicar no GitHub Pages:
+
+```bash
+mkdocs gh-deploy --force
+```
+
 ### Links Relevantes
 - [Documentação FastAPI](https://fastapi.tiangolo.com/)
 - [YOLOv8](https://docs.ultralytics.com/)
@@ -211,6 +225,20 @@ curl http://localhost:8000/cancelar-processamento/video.mp4
 ```
 
 Check the [full documentation](https://USER.github.io/CountG/) for more details.
+
+### Documentation
+Install the documentation dependencies and run locally:
+
+```bash
+pip install mkdocs mkdocs-material mkdocs-static-i18n
+mkdocs serve
+```
+
+To publish to GitHub Pages:
+
+```bash
+mkdocs gh-deploy --force
+```
 
 ### Useful Links
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
