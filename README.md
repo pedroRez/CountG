@@ -77,6 +77,33 @@ CREATE_ANNOTATED_VIDEO=true
 OMP_NUM_THREADS=12
 ```
 
+### Uso da API
+Exemplos de requisições:
+
+#### `/upload-video/`
+```bash
+curl -X POST -F "file=@meu_video.mp4" http://localhost:8000/upload-video/
+```
+
+#### `/predict-video/`
+```bash
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"nome_arquivo":"video.mp4"}' \
+  http://localhost:8000/predict-video/
+```
+
+#### `/progresso/{video_name}`
+```bash
+curl http://localhost:8000/progresso/video.mp4
+```
+
+#### `/cancelar-processamento/{video_name}`
+```bash
+curl http://localhost:8000/cancelar-processamento/video.mp4
+```
+
+Para mais informações, consulte a [documentação completa](https://USER.github.io/CountG/).
+
 ### Links Relevantes
 - [Documentação FastAPI](https://fastapi.tiangolo.com/)
 - [YOLOv8](https://docs.ultralytics.com/)
@@ -157,6 +184,33 @@ USE_SFTP=false
 CREATE_ANNOTATED_VIDEO=true
 OMP_NUM_THREADS=12
 ```
+
+### API Usage
+Request examples:
+
+#### `/upload-video/`
+```bash
+curl -X POST -F "file=@my_video.mp4" http://localhost:8000/upload-video/
+```
+
+#### `/predict-video/`
+```bash
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"nome_arquivo":"video.mp4"}' \
+  http://localhost:8000/predict-video/
+```
+
+#### `/progresso/{video_name}`
+```bash
+curl http://localhost:8000/progresso/video.mp4
+```
+
+#### `/cancelar-processamento/{video_name}`
+```bash
+curl http://localhost:8000/cancelar-processamento/video.mp4
+```
+
+Check the [full documentation](https://USER.github.io/CountG/) for more details.
 
 ### Useful Links
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
