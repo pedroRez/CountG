@@ -33,7 +33,36 @@ def get_line_and_direction_config(
 ) -> Tuple[
     Optional[str], Optional[str], Optional[Tuple], Optional[int], Optional[Tuple]
 ]:
-    """Determina tipo de linha, posição e direção com base na orientação."""
+    """Determina tipo de linha, posição e direção com base na orientação.
+
+    Determine the line type, its position and the movement direction from an
+    orientation code.
+
+    Parâmetros / Parameters:
+        orientation_code (str): Código da orientação (ex.: ``"N"`` para norte).
+            Orientation code (e.g. ``"N"`` for north).
+        width (int): Largura do frame do vídeo.
+            Video frame width.
+        height (int): Altura do frame do vídeo.
+            Video frame height.
+        line_ratio (float, opcional): Posição relativa da linha dentro do
+            frame, variando de ``0`` a ``1``. Relative position of the line in
+            the frame, ranging from ``0`` to ``1``.
+
+    Retorno / Returns:
+        tuple: ``(line_type, direction, line_points, line_pos_value,
+        arrow_points)`` contendo o tipo e a orientação da linha.
+        Tuple describing line type and orientation as
+        ``(line_type, direction, line_points, line_pos_value, arrow_points)``.
+
+    Efeitos colaterais / Side Effects:
+        Emite mensagens de log quando a orientação é desconhecida.
+        Logs a warning when the orientation is unknown.
+
+    Exceções / Exceptions:
+        Nenhuma é lançada explicitamente.
+        None are explicitly raised.
+    """
     (
         line_type,
         effective_counting_direction,
@@ -135,6 +164,32 @@ def is_crossing_diagonal_line(
     line_p2: Tuple[int, int],
     direction: str,
 ) -> bool:
+    """Verifica se um objeto cruzou uma linha diagonal.
+
+    Check whether an object crossed a diagonal line.
+
+    Parâmetros / Parameters:
+        p_prev_x, p_prev_y (int): Coordenadas anteriores do objeto.
+            Previous object coordinates.
+        p_curr_x, p_curr_y (int): Coordenadas atuais do objeto.
+            Current object coordinates.
+        line_p1, line_p2 (Tuple[int, int]): Pontos que definem a linha.
+            Points that define the line.
+        direction (str): Direção esperada do cruzamento.
+            Expected crossing direction.
+
+    Retorno / Returns:
+        bool: ``True`` se o objeto cruzou na direção especificada, ``False`` caso contrário.
+        ``True`` if the object crossed in the expected direction, ``False`` otherwise.
+
+    Efeitos colaterais / Side Effects:
+        Nenhum.
+        None.
+
+    Exceções / Exceptions:
+        Nenhuma é lançada explicitamente.
+        None are explicitly raised.
+    """
     (x1_line, y1_line), (x2_line, y2_line) = line_p1, line_p2
     val_prev = (float(p_prev_y - y1_line) * (x2_line - x1_line)) - (
         float(p_prev_x - x1_line) * (y2_line - y1_line)
@@ -169,6 +224,52 @@ def contar_gado_em_video(
     status_check_interval: int = 30,
     cancel_callback: Optional[Callable[[], bool]] = None,
 ) -> Optional[Dict[str, Any]]:
+    """Realiza a contagem de gado em um arquivo de vídeo.
+
+    Count cattle in a video file.
+
+    Parâmetros / Parameters:
+        video_path (str): Caminho local para o vídeo.
+            Local path to the video file.
+        video_name (str): Nome do vídeo usado para logs e SFTP.
+            Video name used for logs and SFTP operations.
+        progresso_manager (Any): Instância que gerencia o progresso de
+            processamento. Instance that manages processing progress.
+        model_choice (str, opcional): Variante do modelo YOLO a ser usada
+            (``"n"``, ``"m"``, ``"l"`` ou ``"p"``). YOLO model variant to use.
+        frame_skip (int, opcional): Número de frames a pular entre análises.
+            Number of frames skipped between analyses.
+        orientation (str, opcional): Código da orientação da linha de
+            contagem. Line orientation code.
+        target_classes (List[str], opcional): Classes de interesse para
+            detecção. Target classes for detection.
+        line_position_ratio (float, opcional): Posição relativa da linha de
+            contagem. Relative position of the counting line.
+        status_check_interval (int, opcional): Intervalo em segundos para
+            verificar cancelamentos. Interval in seconds to check for
+            cancellation requests.
+        cancel_callback (Callable, opcional): Função que retorna ``True``
+            quando o processamento deve ser cancelado. Callback returning
+            ``True`` when the process should be cancelled.
+
+    Retorno / Returns:
+        dict | None: Dicionário com estatísticas da contagem ou ``None`` em
+        caso de erro ou cancelamento.
+        Dictionary with counting statistics or ``None`` if an error or
+        cancellation occurs.
+
+    Efeitos colaterais / Side Effects:
+        Pode enviar e deletar arquivos via SFTP, atualizar o progresso no
+        banco de dados e gerar vídeos anotados.
+        May upload/delete files over SFTP, update database progress and
+        generate annotated videos.
+
+    Exceções / Exceptions:
+        Erros são capturados internamente; em caso de falha a função retorna
+        ``None`` e registra o erro.
+        Exceptions are handled internally; on failure ``None`` is returned and
+        the error is logged.
+    """
 
     USE_SFTP = os.getenv("USE_SFTP", "false").lower() == "true"
     CREATE_ANNOTATED_VIDEO = (

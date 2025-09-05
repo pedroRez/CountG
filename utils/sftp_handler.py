@@ -16,7 +16,25 @@ HG_PORT = int(os.getenv("HG_PORT", 22))
 
 
 def sftp_connect() -> Optional[Tuple[paramiko.SFTPClient, paramiko.Transport]]:
-    """Cria e retorna um cliente SFTP conectado."""
+    """Cria e retorna um cliente SFTP conectado.
+
+    Create and return a connected SFTP client.
+
+    Parâmetros / Parameters:
+        Nenhum / None (usa variáveis de ambiente).
+
+    Retorno / Returns:
+        tuple | None: Par ``(sftp, transport)`` ou ``(None, None)`` em caso de
+        falha. Pair ``(sftp, transport)`` or ``(None, None)`` on failure.
+
+    Efeitos colaterais / Side Effects:
+        Estabelece conexão com o servidor e registra logs.
+        Establishes a server connection and logs messages.
+
+    Exceções / Exceptions:
+        Qualquer exceção é capturada e registrada; ``None`` é retornado.
+        Exceptions are caught and logged; ``None`` is returned.
+    """
     if not all([HG_HOST, HG_USER, HG_PASS]):
         logger.error(
             "[SFTP ERRO] Variáveis de ambiente (HG_HOST, HG_USER, HG_PASS) não estão configuradas."
@@ -34,9 +52,24 @@ def sftp_connect() -> Optional[Tuple[paramiko.SFTPClient, paramiko.Transport]]:
 
 
 def _ensure_remote_dir_exists(sftp: paramiko.SFTPClient, remote_path: str):
-    """
-    Função auxiliar interna para garantir que um diretório remoto exista,
-    criando-o recursivamente se necessário.
+    """Garante que um diretório remoto exista, criando-o recursivamente.
+
+    Ensure that a remote directory exists, creating it recursively if needed.
+
+    Parâmetros / Parameters:
+        sftp (paramiko.SFTPClient): Cliente SFTP ativo. Active SFTP client.
+        remote_path (str): Caminho remoto completo. Full remote path.
+
+    Retorno / Returns:
+        None
+
+    Efeitos colaterais / Side Effects:
+        Cria diretórios no servidor remoto e registra logs.
+        Creates directories on the remote server and logs messages.
+
+    Exceções / Exceptions:
+        Exceções do SFTP não são tratadas aqui.
+        SFTP exceptions are not handled here.
     """
     remote_dir = os.path.dirname(remote_path.replace("\\", "/"))
     if not remote_dir or remote_dir == ".":
@@ -68,7 +101,31 @@ def upload_file_sftp(
     remote_path: str,
     progress_callback: Optional[Callable[[int, int], None]] = None,
 ) -> bool:
-    """Faz upload de um arquivo local para um caminho remoto via SFTP, com callback de progresso."""
+    """Faz upload de um arquivo local para um caminho remoto via SFTP.
+
+    Upload a local file to a remote path via SFTP.
+
+    Parâmetros / Parameters:
+        local_path (str): Caminho do arquivo local. Local file path.
+        remote_path (str): Caminho remoto de destino. Remote destination path.
+        progress_callback (Callable, opcional): Função de progresso
+            ``(transferred, total)``. Progress callback ``(transferred,
+            total)``.
+
+    Retorno / Returns:
+        bool: ``True`` se o upload foi bem-sucedido.
+        ``True`` if the upload succeeded.
+
+    Efeitos colaterais / Side Effects:
+        Cria diretórios remotos conforme necessário, transfere o arquivo e
+        registra logs.
+        Creates remote directories as needed, transfers the file and logs
+        messages.
+
+    Exceções / Exceptions:
+        Erros de SFTP são capturados e resultam em ``False``.
+        SFTP errors are caught and result in ``False``.
+    """
     sftp, transport = sftp_connect()
     if not sftp:
         return False
@@ -96,7 +153,29 @@ def download_file_sftp(
     local_path: str,
     progress_callback: Optional[Callable[[int, int], None]] = None,
 ) -> bool:
-    """Baixa um arquivo de um caminho remoto para um local via SFTP, com callback de progresso."""
+    """Baixa um arquivo de um caminho remoto para um local via SFTP.
+
+    Download a file from a remote path to a local path via SFTP.
+
+    Parâmetros / Parameters:
+        remote_path (str): Caminho remoto de origem. Remote source path.
+        local_path (str): Caminho local de destino. Local destination path.
+        progress_callback (Callable, opcional): Função de progresso
+            ``(transferred, total)``. Progress callback ``(transferred,
+            total)``.
+
+    Retorno / Returns:
+        bool: ``True`` se o download foi bem-sucedido.
+        ``True`` if the download succeeded.
+
+    Efeitos colaterais / Side Effects:
+        Transfere arquivos para o sistema local e registra logs.
+        Transfers files to the local system and logs messages.
+
+    Exceções / Exceptions:
+        Erros de SFTP são capturados e resultam em ``False``.
+        SFTP errors are caught and result in ``False``.
+    """
     sftp, transport = sftp_connect()
     if not sftp:
         return False
@@ -118,7 +197,25 @@ def download_file_sftp(
 
 
 def delete_file_sftp(remote_path: str) -> bool:
-    """Deleta um arquivo em um caminho remoto via SFTP."""
+    """Deleta um arquivo em um caminho remoto via SFTP.
+
+    Delete a file at a remote path via SFTP.
+
+    Parâmetros / Parameters:
+        remote_path (str): Caminho do arquivo remoto. Remote file path.
+
+    Retorno / Returns:
+        bool: ``True`` se o arquivo foi removido ou já inexistente.
+        ``True`` if the file was removed or already absent.
+
+    Efeitos colaterais / Side Effects:
+        Remove arquivos no servidor remoto e registra logs.
+        Removes files on the remote server and logs messages.
+
+    Exceções / Exceptions:
+        Erros de SFTP são capturados e retornam ``False``.
+        SFTP errors are caught and result in ``False``.
+    """
     sftp, transport = sftp_connect()
     if not sftp:
         return False
