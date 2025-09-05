@@ -1,3 +1,14 @@
+"""Testes para utilidades de contagem de vídeo.
+
+O módulo valida a configuração de linhas e direções e a detecção de
+cruzamentos de linhas diagonais.
+
+Tests for video counting utilities.
+
+The module validates line and direction configuration and detection of
+diagonal line crossings.
+"""
+
 from utils.contagem_video import (
     get_line_and_direction_config,
     LINE_VERTICAL,
@@ -8,6 +19,8 @@ from utils.contagem_video import (
 
 
 def test_get_line_and_direction_config_east():
+    """Return a centered vertical line moving from left to right for east."""
+
     line_type, direction, line_points, pos, _ = get_line_and_direction_config(
         'E', width=100, height=50
     )
@@ -18,6 +31,8 @@ def test_get_line_and_direction_config_east():
 
 
 def test_is_crossing_diagonal_line():
+    """Detect crossing of a top-left to bottom-right diagonal line."""
+
     p_prev = (10, 20)
     p_curr = (30, 25)
     line_p1 = (0, 0)

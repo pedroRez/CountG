@@ -1,3 +1,14 @@
+"""Testes das rotas de upload de vídeo.
+
+O objetivo é confirmar que a API recusa arquivos com extensões inválidas e aceita
+vídeos com extensões permitidas.
+
+Tests for the video upload routes.
+
+The goal is to confirm the API rejects files with invalid extensions and
+accepts videos with permitted extensions.
+"""
+
 import os
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -9,6 +20,8 @@ app.include_router(router)
 
 
 def test_upload_video_endpoint_rejects_invalid_extension():
+    """Return a 400 error when a file with an unsupported extension is uploaded."""
+
     client = TestClient(app)
     response = client.post(
         "/upload-video/",
@@ -19,6 +32,8 @@ def test_upload_video_endpoint_rejects_invalid_extension():
 
 
 def test_upload_video_endpoint_accepts_valid_extension(tmp_path):
+    """Accept a valid video file and store it in the uploads directory."""
+
     # Ensure uploads go to a temporary directory
     data_dir = tmp_path / "data"
     uploads_dir = data_dir / "uploads"
