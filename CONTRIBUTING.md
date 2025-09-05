@@ -56,6 +56,31 @@ feat: adiciona rota para upload de vídeo
    pytest
    ```
 
+## Documentação
+
+### Docstrings e arquivos de documentação bilíngues
+
+- Escreva os docstrings e os arquivos em `docs/` sempre em **inglês e português**.
+- Use o inglês como primeiro idioma e o português em seguida.
+- Nos docstrings, inclua uma linha de resumo combinada (`English summary / resumo em português`) e, após uma linha em branco, separe blocos rotulados com `English:` e `Português:`.
+- Os arquivos de documentação devem existir em caminhos paralelos dentro de `docs/en` e `docs/pt`, mantendo o conteúdo sincronizado.
+
+### Construir e visualizar a documentação localmente
+
+1. Instale as dependências de documentação:
+   ```bash
+   pip install mkdocs mkdocs-material mkdocs-static-i18n
+   ```
+2. Para visualizar o site localmente, execute:
+   ```bash
+   mkdocs serve
+   ```
+   O servidor estará disponível em `http://127.0.0.1:8000`.
+3. Para gerar os arquivos estáticos, utilize:
+   ```bash
+   mkdocs build
+   ```
+
 ## Dúvidas
 
 Em caso de dúvidas, abra uma issue explicando o problema ou entre em contato através das discussões do repositório.
