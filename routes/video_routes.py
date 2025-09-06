@@ -12,7 +12,6 @@ from fastapi.responses import JSONResponse
 from schemas import VideoRequest
 from utils.contagem_video import contar_gado_em_video
 from utils.gerenciador_progresso import ProgressoManager
-from utils.sftp_handler import upload_file_sftp
 
 router = APIRouter()
 DATA_DIR = os.getenv("RENDER_DATA_DIR", "data")
