@@ -7,9 +7,6 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-# Importa as funções SFTP do seu handler
-from utils.sftp_handler import delete_file_sftp, upload_file_sftp
-
 logger = logging.getLogger(__name__)
 
 # --- Constantes para Clareza ---
@@ -272,6 +269,14 @@ def contar_gado_em_video(
     """
 
     USE_SFTP = os.getenv("USE_SFTP", "false").lower() == "true"
+    if USE_SFTP:
+        try:
+            from utils.sftp_handler import delete_file_sftp, upload_file_sftp
+        except Exception as exc:  # pragma: no cover - log path
+            logger.warning(
+                f"[CONFIG] Módulo SFTP não disponível ({exc}). Continuando sem SFTP."
+            )
+            USE_SFTP = False
     CREATE_ANNOTATED_VIDEO = (
         os.getenv("CREATE_ANNOTATED_VIDEO", "false").lower() == "true"
     )
