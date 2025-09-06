@@ -601,10 +601,15 @@ def contar_gado_em_video(
                 if progresso_manager:
                     progresso_manager.erro(video_name, public_url)
         else:
-            public_url = "Processed video saved locally and will be deleted."
+            # Provide the local file path to the caller before cleanup in case the frontend
+            # needs to access the processed video. The file is removed immediately after
+            # logging.
+            public_url = local_output_path
             logger.info(
                 f"[INFO] Processed video saved at {local_output_path} and will not be uploaded."
             )
+            if os.path.exists(local_output_path):
+                os.remove(local_output_path)
 
     if USE_SFTP:
         if CREATE_ANNOTATED_VIDEO and os.path.exists(local_output_path):
