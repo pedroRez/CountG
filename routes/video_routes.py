@@ -85,6 +85,9 @@ async def upload_video_endpoint(file: UploadFile = File(...)):
     try:
         with open(temp_local_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+        logger.debug(
+            f"[UPLOAD] Saved size: {os.path.getsize(temp_local_path)} bytes"
+        )
         logger.info(f"[UPLOAD] Vídeo salvo temporariamente em: {temp_local_path}")
     except Exception as e:
         logger.error(f"[UPLOAD ERRO] Falha ao salvar o arquivo temporariamente: {e}")
