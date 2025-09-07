@@ -21,6 +21,8 @@ curl http://localhost:8000/
 ## `POST /upload-video/`
 Envia um arquivo de vídeo.
 
+Formatos permitidos: `.mp4`, `.mov`, `.avi`, `.mkv`. Tamanho máximo: **500 MB**.
+
 **Requisição** (multipart)
 - `file`: arquivo de vídeo
 
@@ -38,7 +40,18 @@ curl -X POST -F "file=@meu_video.mp4" http://localhost:8000/upload-video/
 ## `POST /predict-video/`
 Inicia o processamento de um vídeo previamente enviado.
 
-**Requisição**
+**Campos obrigatórios**
+
+- `nome_arquivo` (string): nome único do vídeo enviado.
+- `orientation` (string): direção do movimento; valores possíveis: `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
+
+**Campos opcionais**
+
+- `model_choice` (string, padrão `l`): escolha do modelo YOLO (`n`, `m`, `l`, `p`).
+- `target_classes` (array de strings, padrão todas): classes alvo para contagem.
+- `line_position_ratio` (número, padrão `0.5`): posição da linha de contagem de `0.0` a `1.0`.
+
+**Exemplo de requisição**
 ```json
 {
   "nome_arquivo": "<nome-gerado>.mp4",
@@ -69,8 +82,15 @@ Consulta o progresso do processamento.
 **Resposta**
 ```json
 {
-  "status": "em_processamento",
-  "progresso": 42
+  "video_name": "<nome-gerado>.mp4",
+  "frame_atual": 10,
+  "total_frames_estimado": 100,
+  "tempo_inicio": "2024-01-01T12:00:00",
+  "tempo_restante": 42.5,
+  "finalizado": false,
+  "resultado": null,
+  "erro": null,
+  "cancelado": false
 }
 ```
 ```bash
@@ -81,9 +101,18 @@ curl http://localhost:8000/progresso/<nome-gerado>.mp4
 Cancela o processamento de um vídeo.
 
 **Resposta**
+
+Sucesso:
 ```json
 {
   "message": "Solicitação de cancelamento para <nome-gerado>.mp4 enviada."
+}
+```
+
+Falha:
+```json
+{
+  "message": "Não foi possível cancelar ou o processo para <nome-gerado>.mp4 não está ativo."
 }
 ```
 ```bash
