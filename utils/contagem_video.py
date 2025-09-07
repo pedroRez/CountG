@@ -351,6 +351,9 @@ def contar_gado_em_video(
         cap.release()
         return None
 
+    if line_position_ratio is None:
+        line_position_ratio = 0.5
+
     line_type, effective_counting_dir, line_points, line_coord_val, arrow_points = (
         get_line_and_direction_config(orientation, width, height, line_position_ratio)
     )
