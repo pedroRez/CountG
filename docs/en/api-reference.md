@@ -19,10 +19,11 @@ curl http://localhost:8000/
 ```
 
 ## `POST /upload-video/`
-Upload a video file.
+Upload a video file. Supported formats: `.mp4`, `.mov`, `.avi`, `.mkv`. The
+maximum allowed size is **500 MB**.
 
 **Request** (multipart)
-- `file`: video file
+- `file`: video file in one of the allowed formats (max 500 MB)
 
 **Response**
 ```json
@@ -38,7 +39,22 @@ curl -X POST -F "file=@my_video.mp4" http://localhost:8000/upload-video/
 ## `POST /predict-video/`
 Start processing a previously uploaded video.
 
-**Request**
+**Request Body**
+
+Required fields:
+
+- `nome_arquivo` (string): unique filename returned by `/upload-video/`.
+- `orientation` (string): one of `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
+
+Optional fields:
+
+- `model_choice` (string, default `"l"`): choose YOLO model `"n"` (nano),
+  `"m"` (medium), `"l"` (large), or `"p"` (custom/best.pt).
+- `target_classes` (array of strings, default `null`): list of classes to count;
+  counts all detected classes when `null`.
+- `line_position_ratio` (number, 0.0–1.0, default `0.5`): counting line
+  position for horizontal/vertical lines.
+
 ```json
 {
   "nome_arquivo": "<generated-name>.mp4",
@@ -69,8 +85,15 @@ Check processing progress.
 **Response**
 ```json
 {
-  "status": "em_processamento",
-  "progresso": 42
+  "video_name": "<generated-name>.mp4",
+  "frame_atual": 120,
+  "total_frames_estimado": 300,
+  "tempo_inicio": 1721823374.123,
+  "tempo_restante": "00:01:23",
+  "finalizado": false,
+  "resultado": null,
+  "erro": null,
+  "cancelado": false
 }
 ```
 ```bash
@@ -81,11 +104,21 @@ curl http://localhost:8000/progresso/<generated-name>.mp4
 Cancel processing of a video.
 
 **Response**
+
+Success:
 ```json
 {
   "message": "Solicitação de cancelamento para <generated-name>.mp4 enviada."
 }
 ```
+
+Failure:
+```json
+{
+  "message": "Não foi possível cancelar ou o processo para <generated-name>.mp4 não está ativo."
+}
+```
+
 ```bash
 curl http://localhost:8000/cancelar-processamento/<generated-name>.mp4
 ```
