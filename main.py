@@ -2,6 +2,7 @@ import logging
 import os
 
 from dotenv import load_dotenv
+
 # any other module that uses these variables.
 load_dotenv()
 from fastapi import FastAPI
@@ -20,7 +21,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Create the FastAPI application instance
-app = FastAPI()
+app = FastAPI(
+    title="CountG API",
+    version="0.1.0",
+    description="FastAPI backend for counting and tracking objects in video.",
+)
 
 # CORS configuration (allows frontend to communicate with backend)
 # Allows a React Native app (running on a different origin) to talk to the API.
