@@ -45,6 +45,8 @@ Required fields:
 
 - `nome_arquivo` (string): unique filename returned by `/upload-video/`.
 - `orientation` (string): one of `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
+- `line_position_ratio` (number between `0.0` and `1.0`, default `0.5`):
+  counting line position for horizontal/vertical lines.
 
 Optional fields:
 
@@ -52,8 +54,6 @@ Optional fields:
   `"m"` (medium), `"l"` (large), or `"p"` (custom/best.pt).
 - `target_classes` (array of strings, default `null`): list of classes to count;
   counts all detected classes when `null`.
-- `line_position_ratio` (number, 0.0–1.0, default `0.5`): counting line
-  position for horizontal/vertical lines.
 
 ```json
 {
@@ -75,7 +75,7 @@ Optional fields:
 ```
 ```bash
 curl -X POST -H "Content-Type: application/json" \
-  -d '{"nome_arquivo":"<generated-name>.mp4","orientation":"S"}' \
+  -d '{"nome_arquivo":"<generated-name>.mp4","orientation":"S","line_position_ratio":0.5}' \
   http://localhost:8000/predict-video/
 ```
 

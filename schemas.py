@@ -52,7 +52,7 @@ class VideoRequest(BaseModel):
         ),
     )
 
-    line_position_ratio: Optional[float] = Field(
+    line_position_ratio: float = Field(
         default=0.5,
         ge=0.0,  # ge = Greater than or equal to (Maior ou igual a)
         le=1.0,  # le = Less than or equal to (Menor ou igual a)
