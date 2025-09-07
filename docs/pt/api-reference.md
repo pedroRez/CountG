@@ -44,12 +44,12 @@ Inicia o processamento de um vídeo previamente enviado.
 
 - `nome_arquivo` (string): nome único do vídeo enviado.
 - `orientation` (string): direção do movimento; valores possíveis: `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
+- `line_position_ratio` (número entre `0.0` e `1.0`, padrão `0.5`): posição da linha de contagem.
 
 **Campos opcionais**
 
 - `model_choice` (string, padrão `l`): escolha do modelo YOLO (`n`, `m`, `l`, `p`).
 - `target_classes` (array de strings, padrão todas): classes alvo para contagem.
-- `line_position_ratio` (número, padrão `0.5`): posição da linha de contagem de `0.0` a `1.0`.
 
 **Exemplo de requisição**
 ```json
@@ -72,7 +72,7 @@ Inicia o processamento de um vídeo previamente enviado.
 ```
 ```bash
 curl -X POST -H "Content-Type: application/json" \
-  -d '{"nome_arquivo":"<nome-gerado>.mp4","orientation":"S"}' \
+  -d '{"nome_arquivo":"<nome-gerado>.mp4","orientation":"S","line_position_ratio":0.5}' \
   http://localhost:8000/predict-video/
 ```
 

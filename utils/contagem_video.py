@@ -240,7 +240,7 @@ def contar_gado_em_video(
             contagem. Line orientation code.
         target_classes (List[str], opcional): Classes de interesse para
             detecção. Target classes for detection.
-        line_position_ratio (float, opcional): Posição relativa da linha de
+        line_position_ratio (float): Posição relativa da linha de
             contagem. Relative position of the counting line.
         status_check_interval (int, opcional): Intervalo em segundos para
             verificar cancelamentos. Interval in seconds to check for
