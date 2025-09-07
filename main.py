@@ -2,6 +2,8 @@ import logging
 import os
 
 from dotenv import load_dotenv
+# any other module that uses these variables.
+load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,8 +11,7 @@ from routes import video_routes
 
 # --- CRITICAL STEP: LOAD ENVIRONMENT VARIABLES FIRST! ---
 # This call must be one of the first lines of your entry point before importing
-# any other module that uses these variables.
-load_dotenv()
+
 
 logging.basicConfig(
     level=logging.INFO,
