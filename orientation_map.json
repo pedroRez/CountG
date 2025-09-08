@@ -1,0 +1,10 @@
+{
+  "N": {"label": "North", "arrow": "\u2191"},
+  "NE": {"label": "Northeast", "arrow": "\u2197"},
+  "E": {"label": "East", "arrow": "\u2192"},
+  "SE": {"label": "Southeast", "arrow": "\u2198"},
+  "S": {"label": "South", "arrow": "\u2193"},
+  "SW": {"label": "Southwest", "arrow": "\u2199"},
+  "W": {"label": "West", "arrow": "\u2190"},
+  "NW": {"label": "Northwest", "arrow": "\u2196"}
+}

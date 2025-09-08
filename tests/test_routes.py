@@ -14,10 +14,12 @@ import os
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from routes.video_routes import router
+from routes.orientation_routes import router as orientation_router
+from routes.video_routes import router as video_router
 
 app = FastAPI()
-app.include_router(router)
+app.include_router(video_router)
+app.include_router(orientation_router)
 
 
 def test_upload_video_endpoint_rejects_invalid_extension():
@@ -91,3 +93,13 @@ def test_predict_video_endpoint_accepts_valid_orientation(monkeypatch):
     )
     assert response.status_code == 200
     assert response.json()["status"] == "iniciado"
+
+
+def test_orientation_map_endpoint_returns_map():
+    """Orientation map endpoint should return mapping with arrow symbols."""
+    client = TestClient(app)
+    response = client.get("/orientation-map")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["N"]["label"] == "North"
+    assert data["S"]["arrow"] == "\u2193"

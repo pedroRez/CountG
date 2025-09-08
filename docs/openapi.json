@@ -1,14 +1,15 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "FastAPI",
+    "title": "CountG API",
+    "description": "FastAPI backend for counting and tracking objects in video.",
     "version": "0.1.0"
   },
   "paths": {
     "/upload-video/": {
       "post": {
         "summary": "Upload Video Endpoint",
-        "description": "Português:\n    Recebe um vídeo do frontend, valida e salva temporariamente no servidor.\n\n    Parâmetros:\n        file (UploadFile): vídeo enviado pelo cliente.\n\n    Retorna:\n        dict: mensagem de sucesso e o nome único gerado para o vídeo.\n\n    Exemplo:\n        >>> curl -X POST -F \"file=@meu_video.mp4\" \\\n        ...     http://localhost:8000/upload-video/\n\nEnglish:\n    Receives a video from the frontend, validates it and stores it temporarily.\n\n    Parameters:\n        file (UploadFile): video provided by the client.\n\n    Returns:\n        dict: success message and the unique server-side filename.\n\n    Example:\n        >>> curl -X POST -F \"file=@my_video.mp4\" \\\n        ...     http://localhost:8000/upload-video/",
+        "description": "Portugu\u00eas:\n    Recebe um v\u00eddeo do frontend, valida e salva temporariamente no servidor.\n\n    Par\u00e2metros:\n        file (UploadFile): v\u00eddeo enviado pelo cliente.\n\n    Retorna:\n        dict: mensagem de sucesso e o nome \u00fanico gerado para o v\u00eddeo.\n\n    Exemplo:\n        >>> curl -X POST -F \"file=@meu_video.mp4\" \\\n        ...     http://localhost:8000/upload-video/\n\nEnglish:\n    Receives a video from the frontend, validates it and stores it temporarily.\n\n    Parameters:\n        file (UploadFile): video provided by the client.\n\n    Returns:\n        dict: success message and the unique server-side filename.\n\n    Example:\n        >>> curl -X POST -F \"file=@my_video.mp4\" \\\n        ...     http://localhost:8000/upload-video/",
         "operationId": "upload_video_endpoint_upload_video__post",
         "requestBody": {
           "content": {
@@ -45,7 +46,7 @@
     "/predict-video/": {
       "post": {
         "summary": "Predict Video Endpoint",
-        "description": "Português:\n    Inicia o processamento de um vídeo previamente enviado para contar o gado.\n\n    Parâmetros:\n        request (VideoRequest): dados do vídeo e opções de processamento.\n\n    Retorna:\n        dict: status indicando que o processamento foi iniciado.\n\n    Exemplo:\n        >>> curl -X POST -H \"Content-Type: application/json\" \\\n        ...     -d '{\"nome_arquivo\":\"video.mp4\"}' \\\n        ...     http://localhost:8000/predict-video/\n\nEnglish:\n    Starts cattle counting for a previously uploaded video.\n\n    Parameters:\n        request (VideoRequest): video data and processing options.\n\n    Returns:\n        dict: status informing that processing has begun.\n\n    Example:\n        >>> curl -X POST -H \"Content-Type: application/json\" \\\n        ...     -d '{\"nome_arquivo\":\"video.mp4\"}' \\\n        ...     http://localhost:8000/predict-video/",
+        "description": "Portugu\u00eas:\n    Inicia o processamento de um v\u00eddeo previamente enviado para contar o gado.\n\n    Par\u00e2metros:\n        request (VideoRequest): dados do v\u00eddeo e op\u00e7\u00f5es de processamento.\n\n    Retorna:\n        dict: status indicando que o processamento foi iniciado.\n\n    Exemplo:\n        >>> curl -X POST -H \"Content-Type: application/json\" \\\n        ...     -d '{\"nome_arquivo\":\"video.mp4\"}' \\\n        ...     http://localhost:8000/predict-video/\n\nEnglish:\n    Starts cattle counting for a previously uploaded video.\n\n    Parameters:\n        request (VideoRequest): video data and processing options.\n\n    Returns:\n        dict: status informing that processing has begun.\n\n    Example:\n        >>> curl -X POST -H \"Content-Type: application/json\" \\\n        ...     -d '{\"nome_arquivo\":\"video.mp4\"}' \\\n        ...     http://localhost:8000/predict-video/",
         "operationId": "predict_video_endpoint_predict_video__post",
         "requestBody": {
           "content": {
@@ -82,7 +83,7 @@
     "/progresso/{video_name}": {
       "get": {
         "summary": "Progresso Endpoint",
-        "description": "Português:\n    Consulta o progresso do processamento de um vídeo.\n\n    Parâmetros:\n        video_name (str): nome do arquivo do vídeo no servidor.\n\n    Retorna:\n        dict: dados de status e porcentagem de conclusão.\n\n    Exemplo:\n        >>> curl http://localhost:8000/progresso/video.mp4\n\nEnglish:\n    Retrieves the processing progress for a video.\n\n    Parameters:\n        video_name (str): name of the video file on the server.\n\n    Returns:\n        dict: status data including completion percentage.\n\n    Example:\n        >>> curl http://localhost:8000/progresso/video.mp4",
+        "description": "Portugu\u00eas:\n    Consulta o progresso do processamento de um v\u00eddeo.\n\n    Par\u00e2metros:\n        video_name (str): nome do arquivo do v\u00eddeo no servidor.\n\n    Retorna:\n        dict: dados de status e porcentagem de conclus\u00e3o.\n\n    Exemplo:\n        >>> curl http://localhost:8000/progresso/video.mp4\n\nEnglish:\n    Retrieves the processing progress for a video.\n\n    Parameters:\n        video_name (str): name of the video file on the server.\n\n    Returns:\n        dict: status data including completion percentage.\n\n    Example:\n        >>> curl http://localhost:8000/progresso/video.mp4",
         "operationId": "progresso_endpoint_progresso__video_name__get",
         "parameters": [
           {
@@ -120,7 +121,7 @@
     "/cancelar-processamento/{video_name}": {
       "get": {
         "summary": "Cancelar Endpoint",
-        "description": "Português:\n    Solicita o cancelamento do processamento de um vídeo.\n\n    Parâmetros:\n        video_name (str): nome do arquivo do vídeo no servidor.\n\n    Retorna:\n        dict: mensagem indicando se o cancelamento foi enviado.\n\n    Exemplo:\n        >>> curl http://localhost:8000/cancelar-processamento/video.mp4\n\nEnglish:\n    Requests cancellation of video processing.\n\n    Parameters:\n        video_name (str): name of the video file on the server.\n\n    Returns:\n        dict: message stating whether cancellation was issued.\n\n    Example:\n        >>> curl http://localhost:8000/cancelar-processamento/video.mp4",
+        "description": "Portugu\u00eas:\n    Solicita o cancelamento do processamento de um v\u00eddeo.\n\n    Par\u00e2metros:\n        video_name (str): nome do arquivo do v\u00eddeo no servidor.\n\n    Retorna:\n        dict: mensagem indicando se o cancelamento foi enviado.\n\n    Exemplo:\n        >>> curl http://localhost:8000/cancelar-processamento/video.mp4\n\nEnglish:\n    Requests cancellation of video processing.\n\n    Parameters:\n        video_name (str): name of the video file on the server.\n\n    Returns:\n        dict: message stating whether cancellation was issued.\n\n    Example:\n        >>> curl http://localhost:8000/cancelar-processamento/video.mp4",
         "operationId": "cancelar_endpoint_cancelar_processamento__video_name__get",
         "parameters": [
           {
@@ -149,6 +150,40 @@
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orientation-map": {
+      "get": {
+        "summary": "Get Orientation Map",
+        "description": "Return static orientation codes with labels and arrows.",
+        "operationId": "get_orientation_map_orientation_map_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Read Root",
+        "description": "Health check endpoint / Endpoint de verifica\u00e7\u00e3o de sa\u00fade.\n\nEnglish:\n    Provides a quick indication that the backend is running and reports\n    whether the ``DATABASE_URL`` environment variable has been loaded.\n    ``database_url_loaded`` is ``True`` when ``DATABASE_URL`` is set,\n    otherwise ``False``.\n\nPortugu\u00eas:\n    Fornece uma indica\u00e7\u00e3o r\u00e1pida de que o backend est\u00e1 ativo e informa\n    se a vari\u00e1vel de ambiente ``DATABASE_URL`` foi carregada.\n    ``database_url_loaded`` \u00e9 ``True`` quando ``DATABASE_URL`` est\u00e1 definida,\n    caso contr\u00e1rio ``False``.\n\nExample/Exemplo:\n    {\n        \"status\": \"KYO DAY Backend is running!\",\n        \"database_url_loaded\": true\n    }",
+        "operationId": "read_root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           }
@@ -184,21 +219,6 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
-      },
-      "Orientation": {
-        "type": "string",
-        "enum": [
-          "N",
-          "NE",
-          "E",
-          "SE",
-          "S",
-          "SW",
-          "W",
-          "NW"
-        ],
-        "title": "Orientation",
-        "description": "Allowed orientation codes."
       },
       "ValidationError": {
         "properties": {
@@ -238,12 +258,13 @@
           "nome_arquivo": {
             "type": "string",
             "title": "Nome Arquivo",
-            "description": "O nome único do arquivo de vídeo que foi previamente enviado para o servidor.\nEnglish: The unique name of the video file that was previously uploaded to the server.",
+            "description": "O nome \u00fanico do arquivo de v\u00eddeo que foi previamente enviado para o servidor.\nEnglish: The unique name of the video file that was previously uploaded to the server.",
             "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.mp4"
           },
           "orientation": {
-            "$ref": "#/components/schemas/Orientation",
-            "description": "Orientação do movimento do gado: N, NE, E, SE, S, SW, W, NW.\nEnglish: Orientation of cattle movement: N, NE, E, SE, S, SW, W, NW.",
+            "type": "string",
+            "title": "Orientation",
+            "description": "Orienta\u00e7\u00e3o do movimento do gado: N, NE, E, SE, S, SW, W, NW.\nEnglish: Orientation of cattle movement: N, NE, E, SE, S, SW, W, NW.",
             "example": "S"
           },
           "model_choice": {
@@ -256,7 +277,7 @@
               }
             ],
             "title": "Model Choice",
-            "description": "Escolha do modelo YOLO: 'n' (nano), 'm' (médio), 'l' (grande), ou 'p' (próprio/best.pt).\nEnglish: YOLO model choice: 'n' (nano), 'm' (medium), 'l' (large), or 'p' (own/best.pt).",
+            "description": "Escolha do modelo YOLO: 'n' (nano), 'm' (m\u00e9dio), 'l' (grande), ou 'p' (pr\u00f3prio/best.pt).\nEnglish: YOLO model choice: 'n' (nano), 'm' (medium), 'l' (large), or 'p' (own/best.pt).",
             "default": "l",
             "example": "l"
           },
@@ -273,7 +294,7 @@
               }
             ],
             "title": "Target Classes",
-            "description": "Lista de classes alvo para contagem. Se Nulo (None), todas as classes detectadas serão contadas.\nEnglish: List of target classes for counting. If Null (None), all detected classes will be counted.",
+            "description": "Lista de classes alvo para contagem. Se Nulo (None), todas as classes detectadas ser\u00e3o contadas.\nEnglish: List of target classes for counting. If Null (None), all detected classes will be counted.",
             "example": [
               "cow"
             ]
@@ -283,7 +304,7 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Line Position Ratio",
-            "description": "Posição da linha de contagem para linhas Horizontais/Verticais (0.0 a 1.0).\nEnglish: Counting line position for Horizontal/Vertical lines (0.0 to 1.0).",
+            "description": "Posi\u00e7\u00e3o da linha de contagem para linhas Horizontais/Verticais (0.0 a 1.0).\nEnglish: Counting line position for Horizontal/Vertical lines (0.0 to 1.0).",
             "default": 0.5,
             "example": 0.5
           }
@@ -294,7 +315,7 @@
           "orientation"
         ],
         "title": "VideoRequest",
-        "description": "Define a estrutura esperada para o corpo da requisição POST em /predict-video/.\n\nEnglish: Defines the expected structure for the POST request body at /predict-video/."
+        "description": "Define a estrutura esperada para o corpo da requisi\u00e7\u00e3o POST em /predict-video/.\n\nEnglish: Defines the expected structure for the POST request body at /predict-video/."
       }
     }
   }
