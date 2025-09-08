@@ -28,12 +28,12 @@ def test_get_line_and_direction_config_east():
     assert line_points == ((50, 0), (50, 50))
     assert pos == 50
 
-
-def test_get_line_and_direction_config_invalid_orientation():
-    """Raise ValueError for unsupported orientation codes."""
+@pytest.mark.parametrize("orientation", ["NE", "NW", "SE", "SW"])
+def test_get_line_and_direction_config_invalid_orientation(orientation):
+    """Raise ValueError for unsupported diagonal orientation codes."""
 
     with pytest.raises(ValueError):
-        get_line_and_direction_config("NE", width=100, height=50)
+        get_line_and_direction_config(orientation, width=100, height=50)
 
 
 def test_rotation_metadata_and_application(tmp_path, monkeypatch):

@@ -11,6 +11,7 @@ accepts videos with permitted extensions.
 
 import os
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -64,13 +65,14 @@ def test_upload_video_endpoint_accepts_valid_extension(tmp_path):
     assert saved_path.exists()
 
 
-def test_predict_video_endpoint_rejects_invalid_orientation():
-    """Return 400 when orientation code is invalid."""
+@pytest.mark.parametrize("orientation", ["INVALID", "NE"])
+def test_predict_video_endpoint_rejects_invalid_orientation(orientation):
+    """Return 400 when orientation code is invalid or diagonal."""
 
     client = TestClient(app)
     response = client.post(
         "/predict-video/",
-        json={"nome_arquivo": "video.mp4", "orientation": "INVALID"},
+        json={"nome_arquivo": "video.mp4", "orientation": orientation},
     )
     assert response.status_code == 400
 
