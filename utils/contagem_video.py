@@ -90,8 +90,10 @@ def get_line_and_direction_config(
     orientation code.
 
     Parâmetros / Parameters:
-        orientation_code (str): Código da orientação (ex.: ``"N"`` para norte).
-            Orientation code (e.g. ``"N"`` for north).
+        orientation_code (str): Código da orientação (``"N"``, ``"E"``,
+            ``"S"`` ou ``"W"``).
+            Orientation code, must be one of ``"N"``, ``"E"``, ``"S"`` or
+            ``"W"``.
         width (int): Largura do frame do vídeo.
             Video frame width.
         height (int): Altura do frame do vídeo.
@@ -111,8 +113,10 @@ def get_line_and_direction_config(
         None.
 
     Exceções / Exceptions:
-        ValueError: Lançada quando a orientação é desconhecida.
-        ValueError: Raised when the orientation is unknown.
+        ValueError: Lançada quando ``orientation_code`` não está entre
+            ``"N"``, ``"E"``, ``"S"`` ou ``"W"``.
+        ValueError: Raised when ``orientation_code`` is not one of
+            ``"N"``, ``"E"``, ``"S"`` or ``"W"``.
     """
     (
         line_type,
@@ -123,6 +127,14 @@ def get_line_and_direction_config(
     ) = (None, None, None, None, None)
     orientation_code = str(orientation_code).upper()
     arrow_offset = 60
+
+    if orientation_code not in {"N", "E", "S", "W"}:
+        msg = (
+            f"[AVISO get_line_config] Orientação '{orientation_code}' inválida. "
+            "Use apenas N, E, S ou W."
+        )
+        logger.warning(msg)
+        raise ValueError(msg)
 
     if orientation_code == "S":
         line_type, effective_counting_direction = LINE_HORIZONTAL, MOVE_TB
@@ -148,7 +160,7 @@ def get_line_and_direction_config(
             (line_pos_value - arrow_offset, height // 2),
             (line_pos_value + arrow_offset, height // 2),
         )
-    elif orientation_code == "W":
+    else:  # orientation_code == "W"
         line_type, effective_counting_direction = LINE_VERTICAL, MOVE_RL
         line_pos_value = int(width * line_ratio)
         line_points = ((line_pos_value, 0), (line_pos_value, height))
@@ -156,10 +168,6 @@ def get_line_and_direction_config(
             (line_pos_value + arrow_offset, height // 2),
             (line_pos_value - arrow_offset, height // 2),
         )
-    else:
-        msg = f"[AVISO get_line_config] Orientação '{orientation_code}' desconhecida."
-        logger.warning(msg)
-        raise ValueError(msg)
 
     logger.debug(
         f"[get_line_config] Para '{orientation_code}': tipo={line_type}, dir={effective_counting_direction}"
