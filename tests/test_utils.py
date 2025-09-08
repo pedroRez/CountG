@@ -16,6 +16,7 @@ from utils.contagem_video import (
     is_crossing_diagonal_line,
     MOVE_TL_BR,
 )
+import pytest
 
 
 def test_get_line_and_direction_config_east():
@@ -28,6 +29,13 @@ def test_get_line_and_direction_config_east():
     assert direction == MOVE_LR
     assert line_points == ((50, 0), (50, 50))
     assert pos == 50
+
+
+def test_get_line_and_direction_config_invalid_orientation():
+    """Raise ValueError for unsupported orientation codes."""
+
+    with pytest.raises(ValueError):
+        get_line_and_direction_config("INVALID", width=100, height=50)
 
 
 def test_is_crossing_diagonal_line():

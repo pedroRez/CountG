@@ -53,12 +53,12 @@ def get_line_and_direction_config(
         ``(line_type, direction, line_points, line_pos_value, arrow_points)``.
 
     Efeitos colaterais / Side Effects:
-        Emite mensagens de log quando a orientação é desconhecida.
-        Logs a warning when the orientation is unknown.
+        Nenhum.
+        None.
 
     Exceções / Exceptions:
-        Nenhuma é lançada explicitamente.
-        None are explicitly raised.
+        ValueError: Lançada quando a orientação é desconhecida.
+        ValueError: Raised when the orientation is unknown.
     """
     (
         line_type,
@@ -127,17 +127,9 @@ def get_line_and_direction_config(
             (width // 4, 3 * height // 4),
         )
     else:
-        logger.warning(
-            f"[AVISO get_line_config] Orientação '{orientation_code}' desconhecida. Usando padrão Leste (E)."
-        )
-        line_type = LINE_VERTICAL
-        effective_counting_direction = MOVE_LR
-        line_pos_value = int(width * line_ratio)
-        line_points = ((line_pos_value, 0), (line_pos_value, height))
-        arrow_points = (
-            (line_pos_value - arrow_offset, height // 2),
-            (line_pos_value + arrow_offset, height // 2),
-        )
+        msg = f"[AVISO get_line_config] Orientação '{orientation_code}' desconhecida."
+        logger.warning(msg)
+        raise ValueError(msg)
 
     logger.debug(
         f"[get_line_config] Para '{orientation_code}': tipo={line_type}, dir={effective_counting_direction}"

@@ -38,7 +38,7 @@ class VideoRequest(BaseModel):
     )
 
     # Campo obrigatório: orientação do movimento do gado
-    orientation: Orientation = Field(
+    orientation: str = Field(
         ...,
         example="S",
         description=(
