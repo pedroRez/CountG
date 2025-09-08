@@ -58,7 +58,7 @@ Inicia o processamento de um vídeo previamente enviado.
 **Campos obrigatórios**
 
 - `nome_arquivo` (string): nome único do vídeo enviado.
-- `orientation` (`Orientation` enum): direção do movimento; valores possíveis: `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`. Use [`GET /orientation-map`](#get-orientation-map) para exibir essas opções na interface.
+- `orientation` (`Orientation` enum): direção do movimento; valores possíveis: `N`, `E`, `S`, `W`. Use [`GET /orientation-map`](#get-orientation-map) para exibir essas opções na interface.
 - `line_position_ratio` (número entre `0.0` e `1.0`, padrão `0.5`): posição da linha de contagem.
 
 **Campos opcionais**

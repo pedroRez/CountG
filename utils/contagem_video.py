@@ -15,17 +15,10 @@ logger = logging.getLogger(__name__)
 # --- Constantes para Clareza ---
 LINE_HORIZONTAL: str = "horizontal"
 LINE_VERTICAL: str = "vertical"
-LINE_DIAGONAL_FWD: str = "diag_fwd"
-LINE_DIAGONAL_BCK: str = "diag_bck"
-
 MOVE_TB: str = "top_bottom"
 MOVE_BT: str = "bottom_top"
 MOVE_LR: str = "left_right"
 MOVE_RL: str = "right_left"
-MOVE_TL_BR: str = "topleft_bottomright"
-MOVE_BR_TL: str = "bottomright_topleft"
-MOVE_TR_BL: str = "topright_bottomleft"
-MOVE_BL_TR: str = "bottomleft_topright"
 
 
 def get_video_rotation(video_path: str) -> int:
@@ -163,30 +156,6 @@ def get_line_and_direction_config(
             (line_pos_value + arrow_offset, height // 2),
             (line_pos_value - arrow_offset, height // 2),
         )
-    elif orientation_code == "SE":
-        line_type, effective_counting_direction = LINE_DIAGONAL_FWD, MOVE_TL_BR
-        line_points, arrow_points = ((0, 0), (width, height)), (
-            (width // 4, height // 4),
-            (3 * width // 4, 3 * height // 4),
-        )
-    elif orientation_code == "NW":
-        line_type, effective_counting_direction = LINE_DIAGONAL_FWD, MOVE_BR_TL
-        line_points, arrow_points = ((0, 0), (width, height)), (
-            (3 * width // 4, 3 * height // 4),
-            (width // 4, height // 4),
-        )
-    elif orientation_code == "NE":
-        line_type, effective_counting_direction = LINE_DIAGONAL_BCK, MOVE_BL_TR
-        line_points, arrow_points = ((0, height), (width, 0)), (
-            (width // 4, 3 * height // 4),
-            (3 * width // 4, height // 4),
-        )
-    elif orientation_code == "SW":
-        line_type, effective_counting_direction = LINE_DIAGONAL_BCK, MOVE_TR_BL
-        line_points, arrow_points = ((0, height), (width, 0)), (
-            (3 * width // 4, height // 4),
-            (width // 4, 3 * height // 4),
-        )
     else:
         msg = f"[AVISO get_line_config] Orientação '{orientation_code}' desconhecida."
         logger.warning(msg)
@@ -202,65 +171,6 @@ def get_line_and_direction_config(
         line_pos_value,
         arrow_points,
     )
-
-
-# !!! ATENÇÃO: ESTA FUNÇÃO PARA DETECÇÃO DIAGONAL É UM ESBOÇO CONCEITUAL. !!!
-def is_crossing_diagonal_line(
-    p_prev_x: int,
-    p_prev_y: int,
-    p_curr_x: int,
-    p_curr_y: int,
-    line_p1: Tuple[int, int],
-    line_p2: Tuple[int, int],
-    direction: str,
-) -> bool:
-    """Verifica se um objeto cruzou uma linha diagonal.
-
-    Check whether an object crossed a diagonal line.
-
-    Parâmetros / Parameters:
-        p_prev_x, p_prev_y (int): Coordenadas anteriores do objeto.
-            Previous object coordinates.
-        p_curr_x, p_curr_y (int): Coordenadas atuais do objeto.
-            Current object coordinates.
-        line_p1, line_p2 (Tuple[int, int]): Pontos que definem a linha.
-            Points that define the line.
-        direction (str): Direção esperada do cruzamento.
-            Expected crossing direction.
-
-    Retorno / Returns:
-        bool: ``True`` se o objeto cruzou na direção especificada, ``False`` caso contrário.
-        ``True`` if the object crossed in the expected direction, ``False`` otherwise.
-
-    Efeitos colaterais / Side Effects:
-        Nenhum.
-        None.
-
-    Exceções / Exceptions:
-        Nenhuma é lançada explicitamente.
-        None are explicitly raised.
-    """
-    (x1_line, y1_line), (x2_line, y2_line) = line_p1, line_p2
-    val_prev = (float(p_prev_y - y1_line) * (x2_line - x1_line)) - (
-        float(p_prev_x - x1_line) * (y2_line - y1_line)
-    )
-    val_curr = (float(p_curr_y - y1_line) * (x2_line - x1_line)) - (
-        float(p_curr_x - x1_line) * (y2_line - y1_line)
-    )
-    crossed = (val_prev < 0 and val_curr >= 0) or (val_prev > 0 and val_curr <= 0)
-    if not crossed:
-        return False
-    # Verificação de direção SIMPLIFICADA (precisa ser melhorada)
-    if direction == MOVE_TL_BR:
-        return p_curr_x > p_prev_x and p_curr_y > p_prev_y
-    elif direction == MOVE_BR_TL:
-        return p_curr_x < p_prev_x and p_curr_y < p_prev_y
-    elif direction == MOVE_BL_TR:
-        return p_curr_x > p_prev_x and p_curr_y < p_prev_y
-    elif direction == MOVE_TR_BL:
-        return p_curr_x < p_prev_x and p_curr_y > p_prev_y
-    return False
-
 
 def contar_gado_em_video(
     video_path: str,
@@ -536,22 +446,6 @@ def contar_gado_em_video(
                                 and curr_x <= line_coord_val
                             ):
                                 crossed = True
-                        elif (
-                            line_type.startswith("diag")
-                            and has_prev_pos
-                            and line_points is not None
-                        ):
-                            if is_crossing_diagonal_line(
-                                track_previous_x[track_id],
-                                track_previous_y[track_id],
-                                curr_x,
-                                curr_y,
-                                line_points[0],
-                                line_points[1],
-                                str(effective_counting_dir),
-                            ):
-                                crossed = True
-
                         if crossed and (
                             target_classes is None or nome_cls in target_classes
                         ):
