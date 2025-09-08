@@ -10,6 +10,7 @@ accepts videos with permitted extensions.
 """
 
 import os
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -42,7 +43,9 @@ def test_upload_video_endpoint_accepts_valid_extension(tmp_path):
 
     # Reload module to apply new DATA_DIR
     from importlib import reload
+
     import routes.video_routes as video_routes
+
     reload(video_routes)
 
     app = FastAPI()
@@ -57,3 +60,14 @@ def test_upload_video_endpoint_accepts_valid_extension(tmp_path):
     nome_arquivo = response.json()["nome_arquivo"]
     saved_path = uploads_dir / nome_arquivo
     assert saved_path.exists()
+
+
+def test_predict_video_endpoint_rejects_invalid_orientation():
+    """Return 422 when orientation is outside allowed enum."""
+
+    client = TestClient(app)
+    response = client.post(
+        "/predict-video/",
+        json={"nome_arquivo": "video.mp4", "orientation": "INVALID"},
+    )
+    assert response.status_code == 422
