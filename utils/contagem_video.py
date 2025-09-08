@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import logging
 import os
+import subprocess
 from collections import defaultdict
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -23,6 +26,64 @@ MOVE_TL_BR: str = "topleft_bottomright"
 MOVE_BR_TL: str = "bottomright_topleft"
 MOVE_TR_BL: str = "topright_bottomleft"
 MOVE_BL_TR: str = "bottomleft_topright"
+
+
+def get_video_rotation(video_path: str) -> int:
+    """Retrieve rotation metadata / Obtém metadados de rotação.
+
+    English:
+        Runs ``ffprobe`` to read the ``rotate`` tag from the first video
+        stream. Returns the rotation angle in degrees (0, 90, 180 or 270).
+
+    Português:
+        Executa ``ffprobe`` para ler a tag ``rotate`` do primeiro stream de
+        vídeo. Retorna o ângulo de rotação em graus (0, 90, 180 ou 270).
+    """
+
+    try:
+        cmd = [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream_tags=rotate",
+            "-of",
+            "default=nw=1:nk=1",
+            video_path,
+        ]
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True,
+        )
+        rotation = int(result.stdout.strip())
+        return rotation % 360
+    except Exception as e:  # pragma: no cover - fallback in case of failure
+        logger.debug("Rotation metadata not found or ffprobe failed: %s", e)
+        return 0
+
+
+def apply_rotation(frame: np.ndarray, rotation: int) -> np.ndarray:
+    """Rotate frame according to metadata / Rotaciona frame de acordo com metadados.
+
+    English:
+        Rotates the frame using OpenCV based on the rotation angle.
+
+    Português:
+        Rotaciona o frame utilizando OpenCV conforme o ângulo informado.
+    """
+
+    if rotation == 90:
+        return cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+    if rotation == 180:
+        return cv2.rotate(frame, cv2.ROTATE_180)
+    if rotation == 270:
+        return cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    return frame
 
 
 def get_line_and_direction_config(
@@ -215,7 +276,11 @@ def contar_gado_em_video(
 ) -> Optional[Dict[str, Any]]:
     """Realiza a contagem de gado em um arquivo de vídeo.
 
-    Count cattle in a video file.
+    Count cattle in a video file. Frames are rotated according to rotation
+    metadata before processing.
+
+    Os frames são rotacionados conforme metadados de rotação antes do
+    processamento.
 
     Parâmetros / Parameters:
         video_path (str): Caminho local para o vídeo.
@@ -331,11 +396,14 @@ def contar_gado_em_video(
             progresso_manager.erro(video_name, "Falha ao abrir o arquivo de vídeo.")
         return None
 
+    rotation = get_video_rotation(local_video_path)
     original_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = cap.get(cv2.CAP_PROP_FPS)
     _fps = fps if fps > 0 else 30.0
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    if rotation in (90, 270):
+        width, height = height, width
 
     if width == 0 or height == 0:
         if progresso_manager:
@@ -405,6 +473,9 @@ def contar_gado_em_video(
         ret, frame = cap.read()
         if not ret:
             break
+
+        if rotation:
+            frame = apply_rotation(frame, rotation)
 
         if frame_atual % frame_skip == 0:
             if not progresso_manager.atualizar(
