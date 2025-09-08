@@ -264,7 +264,7 @@
           "orientation": {
             "type": "string",
             "title": "Orientation",
-            "description": "Orienta\u00e7\u00e3o do movimento do gado: N, NE, E, SE, S, SW, W, NW.\nEnglish: Orientation of cattle movement: N, NE, E, SE, S, SW, W, NW.",
+            "description": "Orienta\u00e7\u00e3o do movimento do gado: N, E, S, W.\nEnglish: Orientation of cattle movement: N, E, S, W.",
             "example": "S"
           },
           "model_choice": {

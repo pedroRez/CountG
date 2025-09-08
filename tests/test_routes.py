@@ -101,5 +101,6 @@ def test_orientation_map_endpoint_returns_map():
     response = client.get("/orientation-map")
     assert response.status_code == 200
     data = response.json()
+    assert set(data.keys()) == {"N", "E", "S", "W"}
     assert data["N"]["label"] == "North"
     assert data["S"]["arrow"] == "\u2193"

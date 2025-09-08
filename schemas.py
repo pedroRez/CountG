@@ -11,13 +11,9 @@ class Orientation(str, Enum):
     """Allowed orientation codes."""
 
     N = "N"
-    NE = "NE"
     E = "E"
-    SE = "SE"
     S = "S"
-    SW = "SW"
     W = "W"
-    NW = "NW"
 
 
 class VideoRequest(BaseModel):
@@ -42,8 +38,8 @@ class VideoRequest(BaseModel):
         ...,
         example="S",
         description=(
-            "Orientação do movimento do gado: N, NE, E, SE, S, SW, W, NW.\n"
-            "English: Orientation of cattle movement: N, NE, E, SE, S, SW, W, NW."
+            "Orientação do movimento do gado: N, E, S, W.\n"
+            "English: Orientation of cattle movement: N, E, S, W."
         ),
     )
 
