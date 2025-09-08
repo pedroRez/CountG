@@ -33,7 +33,7 @@ def test_get_line_and_direction_config_invalid_orientation():
     """Raise ValueError for unsupported orientation codes."""
 
     with pytest.raises(ValueError):
-        get_line_and_direction_config("INVALID", width=100, height=50)
+        get_line_and_direction_config("NE", width=100, height=50)
 
 
 def test_rotation_metadata_and_application(tmp_path, monkeypatch):
