@@ -1,9 +1,23 @@
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 # BaseModel é a classe base do Pydantic para criar modelos de dados.
 # Field é usado para adicionar metadados extras aos campos, como exemplos, descrições e validações.
+
+
+class Orientation(str, Enum):
+    """Allowed orientation codes."""
+
+    N = "N"
+    NE = "NE"
+    E = "E"
+    SE = "SE"
+    S = "S"
+    SW = "SW"
+    W = "W"
+    NW = "NW"
 
 
 class VideoRequest(BaseModel):
@@ -24,7 +38,7 @@ class VideoRequest(BaseModel):
     )
 
     # Campo obrigatório: orientação do movimento do gado
-    orientation: str = Field(
+    orientation: Orientation = Field(
         ...,
         example="S",
         description=(

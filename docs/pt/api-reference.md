@@ -43,7 +43,7 @@ Inicia o processamento de um vídeo previamente enviado.
 **Campos obrigatórios**
 
 - `nome_arquivo` (string): nome único do vídeo enviado.
-- `orientation` (string): direção do movimento; valores possíveis: `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
+- `orientation` (`Orientation` enum): direção do movimento; valores possíveis: `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
 - `line_position_ratio` (número entre `0.0` e `1.0`, padrão `0.5`): posição da linha de contagem.
 
 **Campos opcionais**

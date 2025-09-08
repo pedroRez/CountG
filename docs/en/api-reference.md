@@ -44,7 +44,7 @@ Start processing a previously uploaded video.
 Required fields:
 
 - `nome_arquivo` (string): unique filename returned by `/upload-video/`.
-- `orientation` (string): one of `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
+- `orientation` (`Orientation` enum): one of `N`, `NE`, `E`, `SE`, `S`, `SW`, `W`, `NW`.
 - `line_position_ratio` (number between `0.0` and `1.0`, default `0.5`):
   counting line position for horizontal/vertical lines.
 
