@@ -19,14 +19,16 @@ curl http://localhost:8000/
 ```
 
 ## `GET /orientation-map`
-Retorna o mapeamento dos códigos de orientação com rótulos legíveis e setas.
-Útil para construir um seletor visual no frontend.
+Retorna o mapeamento dos códigos de orientação (`N`, `E`, `S`, `W`) com rótulos
+legíveis e setas. Útil para construir um seletor visual no frontend.
 
 **Resposta**
 ```json
 {
   "N": {"label": "North", "arrow": "\u2191"},
-  "S": {"label": "South", "arrow": "\u2193"}
+  "E": {"label": "East", "arrow": "\u2192"},
+  "S": {"label": "South", "arrow": "\u2193"},
+  "W": {"label": "West", "arrow": "\u2190"}
 }
 ```
 ```bash
