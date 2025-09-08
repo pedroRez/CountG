@@ -377,7 +377,9 @@ def contar_gado_em_video(
     local_output_path = ""
     processed_fn = ""
     if CREATE_ANNOTATED_VIDEO:
-        output_dir_local = "videos_processados_temp"
+        output_dir_local = (
+            "videos_processados_temp" if USE_SFTP else "videos_processados"
+        )
         os.makedirs(output_dir_local, exist_ok=True)
         base_name, vid_ext = os.path.splitext(video_name)
         processed_fn = f"processed_{base_name}{vid_ext}"
@@ -604,15 +606,9 @@ def contar_gado_em_video(
                 if progresso_manager:
                     progresso_manager.erro(video_name, public_url)
         else:
-            # Provide the local file path to the caller before cleanup in case the frontend
-            # needs to access the processed video. The file is removed immediately after
-            # logging.
+            # Store the processed video locally for later access.
             public_url = local_output_path
-            logger.info(
-                f"[INFO] Processed video saved at {local_output_path} and will not be uploaded."
-            )
-            if os.path.exists(local_output_path):
-                os.remove(local_output_path)
+            logger.info(f"[INFO] Processed video saved at {local_output_path}.")
 
     if USE_SFTP:
         if CREATE_ANNOTATED_VIDEO and os.path.exists(local_output_path):
