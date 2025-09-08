@@ -63,11 +63,31 @@ def test_upload_video_endpoint_accepts_valid_extension(tmp_path):
 
 
 def test_predict_video_endpoint_rejects_invalid_orientation():
-    """Return 422 when orientation is outside allowed enum."""
+    """Return 400 when orientation code is invalid."""
 
     client = TestClient(app)
     response = client.post(
         "/predict-video/",
         json={"nome_arquivo": "video.mp4", "orientation": "INVALID"},
     )
-    assert response.status_code == 422
+    assert response.status_code == 400
+
+
+def test_predict_video_endpoint_accepts_valid_orientation(monkeypatch):
+    """Accept a valid orientation and start processing."""
+
+    client = TestClient(app)
+
+    def fake_contar_gado_em_video(**kwargs):
+        return {}
+
+    monkeypatch.setattr(
+        "routes.video_routes.contar_gado_em_video", fake_contar_gado_em_video
+    )
+
+    response = client.post(
+        "/predict-video/",
+        json={"nome_arquivo": "video.mp4", "orientation": "N"},
+    )
+    assert response.status_code == 200
+    assert response.json()["status"] == "iniciado"
