@@ -8,7 +8,7 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import video_routes
+from routes import orientation_routes, video_routes
 
 # --- CRITICAL STEP: LOAD ENVIRONMENT VARIABLES FIRST! ---
 # This call must be one of the first lines of your entry point before importing
@@ -44,6 +44,7 @@ app.add_middleware(
 
 # Include routes from video_routes.py
 app.include_router(video_routes.router)
+app.include_router(orientation_routes.router)
 
 
 # Root endpoint for health check
